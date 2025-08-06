@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { loadChatService } from "../services/chatService";
 import type { ChatMessage } from "../types/chat";
-import { ChatMessage as ChatMessageBubble } from "./chat/ChatMessage";
+import { ChatMessageBubble } from "./chat/ChatMessage";
 import { ChatInput } from "./chat/ChatInput";
 import { ChatActions } from "./chat/ChatActions";
 import { ChatSummaryModal } from "./chat/ChatSummaryModal";
@@ -12,6 +12,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   ExclamationTriangleIcon,
+  ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 
 interface ChatHistory {
@@ -23,7 +24,7 @@ interface ChatHistory {
 }
 
 export const Chat: React.FC = () => {
-  const { logout } = useUserStore();
+  const { user, logout } = useUserStore();
   const navigate = useNavigate();
   const { serviceId } = useParams<{ serviceId: string }>();
 
@@ -50,6 +51,38 @@ export const Chat: React.FC = () => {
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatStarted, setChatStarted] = useState(false);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
+
+  // Load chat history for current user
+  useEffect(() => {
+    if (user?.email) {
+      const savedHistory = localStorage.getItem(`chat-history-${user.email}`);
+      if (savedHistory) {
+        try {
+          const parsed = JSON.parse(savedHistory);
+          // Convert timestamp strings back to Date objects
+          const historyWithDates = parsed.map((item: any) => ({
+            ...item,
+            timestamp: new Date(item.timestamp),
+          }));
+          setChatHistory(historyWithDates);
+        } catch (error) {
+          console.error("Failed to load chat history:", error);
+        }
+      }
+    }
+  }, [user?.email]);
+
+  // Save chat history whenever it changes
+  useEffect(() => {
+    if (user?.email && chatHistory.length > 0) {
+      localStorage.setItem(
+        `chat-history-${user.email}`,
+        JSON.stringify(chatHistory)
+      );
+    }
+  }, [chatHistory, user?.email]);
 
   if (isLoading)
     return (
@@ -136,15 +169,17 @@ export const Chat: React.FC = () => {
 
   const handleCloseSummary = () => {
     setShowSummary(false);
-    // Save to chat history
-    const newHistory: ChatHistory = {
-      id: Date.now().toString(),
-      serviceId,
-      serviceTitle: service.title,
-      timestamp: new Date(),
-      answers: { ...answers },
-    };
-    setChatHistory((prev) => [newHistory, ...prev]);
+    // Save to chat history only if not viewing history
+    if (!viewingHistory) {
+      const newHistory: ChatHistory = {
+        id: Date.now().toString(),
+        serviceId,
+        serviceTitle: service.title,
+        timestamp: new Date(),
+        answers: { ...answers },
+      };
+      setChatHistory((prev) => [newHistory, ...prev]);
+    }
     setCurrent(0);
     setAnswers({});
     setInput("");
@@ -164,6 +199,8 @@ export const Chat: React.FC = () => {
     setInput("");
     setInputError("");
     setChatStarted(false);
+    setEditingMessageId(null);
+    setEditValue("");
   };
 
   const handleStartChat = () => {
@@ -174,6 +211,28 @@ export const Chat: React.FC = () => {
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  const handleBackToServices = () => {
+    navigate("/services");
+  };
+
+  const startEditing = (messageId: string, currentValue: string) => {
+    setEditingMessageId(messageId);
+    setEditValue(currentValue);
+  };
+
+  const saveEdit = () => {
+    if (editingMessageId && editValue.trim()) {
+      setAnswers((a) => ({ ...a, [editingMessageId]: editValue }));
+      setEditingMessageId(null);
+      setEditValue("");
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingMessageId(null);
+    setEditValue("");
   };
 
   return (
@@ -240,6 +299,12 @@ export const Chat: React.FC = () => {
               >
                 <Bars3Icon className="w-6 h-6" />
               </button>
+              <button
+                onClick={handleBackToServices}
+                className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 mr-2"
+              >
+                <ArrowLeftIcon className="w-6 h-6" />
+              </button>
               <h1 className="text-xl font-bold text-gray-900">
                 {viewingHistory
                   ? `Viewing: ${viewingHistory.serviceTitle}`
@@ -278,6 +343,23 @@ export const Chat: React.FC = () => {
                       ? viewingHistory.answers[msg.id]
                       : answers[msg.id]
                   }
+                  isEditing={editingMessageId === msg.id}
+                  editValue={editValue}
+                  onEditChange={setEditValue}
+                  onStartEdit={() => {
+                    const currentAnswer = viewingHistory
+                      ? viewingHistory.answers[msg.id]
+                      : answers[msg.id];
+                    if (currentAnswer) {
+                      startEditing(msg.id, currentAnswer);
+                    }
+                  }}
+                  onSaveEdit={saveEdit}
+                  onCancelEdit={cancelEdit}
+                  canEdit={
+                    !viewingHistory &&
+                    (msg.type === "input" || msg.type === "action")
+                  }
                 />
               ))}
             </div>
@@ -287,42 +369,20 @@ export const Chat: React.FC = () => {
               !chatStarted &&
               current === 0 &&
               service.messages[0]?.type === "text" && (
-                <div className="text-center">
+                <div className="flex justify-center">
                   <button
                     onClick={handleStartChat}
-                    className="bg-blue-600 text-white py-4 px-8 rounded-2xl font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                    className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-semibold hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl text-lg transform hover:scale-105"
                   >
                     Start Chat
                   </button>
                 </div>
               )}
 
-            {!viewingHistory &&
-              chatStarted &&
-              currentMsg &&
-              currentMsg.type === "input" &&
-              !answers[currentMsg.id] && (
-                <ChatInput
-                  message={currentMsg}
-                  value={input}
-                  error={inputError}
-                  onChange={handleInputChange}
-                  onSubmit={handleInputSubmit}
-                />
-              )}
-
-            {!viewingHistory &&
-              chatStarted &&
-              currentMsg &&
-              currentMsg.type === "action" &&
-              !answers[currentMsg.id] && (
-                <ChatActions message={currentMsg} onAction={handleAction} />
-              )}
-
             {viewingHistory && (
-              <div className="text-center">
+              <div className="flex justify-center">
                 <button
-                  className="bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors shadow-lg"
                   onClick={() => setShowSummary(true)}
                 >
                   View Summary
@@ -331,6 +391,38 @@ export const Chat: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Bottom input area */}
+        {!viewingHistory &&
+          chatStarted &&
+          currentMsg &&
+          currentMsg.type === "input" &&
+          !answers[currentMsg.id] && (
+            <div className="border-t border-gray-200 bg-white p-4">
+              <div className="max-w-4xl mx-auto">
+                <ChatInput
+                  message={currentMsg}
+                  value={input}
+                  error={inputError}
+                  onChange={handleInputChange}
+                  onSubmit={handleInputSubmit}
+                />
+              </div>
+            </div>
+          )}
+
+        {/* Bottom action area */}
+        {!viewingHistory &&
+          chatStarted &&
+          currentMsg &&
+          currentMsg.type === "action" &&
+          !answers[currentMsg.id] && (
+            <div className="border-t border-gray-200 bg-white p-4">
+              <div className="max-w-4xl mx-auto">
+                <ChatActions message={currentMsg} onAction={handleAction} />
+              </div>
+            </div>
+          )}
       </div>
 
       <ChatSummaryModal

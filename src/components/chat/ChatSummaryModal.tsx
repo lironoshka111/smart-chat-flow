@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import type { ChatMessage } from "../../types/chat";
-import React, { Fragment } from "react";
+import { Fragment } from "react";
 
 interface ChatSummaryModalProps {
   open: boolean;
