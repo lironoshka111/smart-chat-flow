@@ -1,0 +1,50 @@
+{
+    "id": "employee-onboarding",
+    "title": "Employee Onboarding",
+    "description": "Helps you onboard a new employee to the company.",
+    "messages": [
+      {
+        "id": "m1",
+        "type": "text",
+        "content": "Welcome to the Employee Onboarding assistant!"
+      },
+      {
+        "id": "m2",
+        "type": "input",
+        "content": "What is the full name of the new employee?",
+        "inputType": "text",
+        "validation": {
+          "required": true,
+          "minLength": 3,
+          "errorMessage": "Full name is required and must be at least 3 characters."
+        }
+      },
+      {
+        "id": "m3",
+        "type": "input",
+        "content": "What is their job title?",
+        "inputType": "text",
+        "validation": {
+          "required": true
+        }
+      },
+      {
+        "id": "m4",
+        "type": "input",
+        "content": "What is their start date?",
+        "inputType": "date",
+        "validation": {
+          "required": true
+        }
+      },
+      {
+        "id": "m5",
+        "type": "action",
+        "content": "Do you confirm the onboarding details?",
+        "actions": [
+          { "type": "approve", "label": "Approve" },
+          { "type": "deny", "label": "Deny" }
+        ]
+      }
+    ]
+  }

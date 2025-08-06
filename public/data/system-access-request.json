@@ -1,0 +1,42 @@
+{
+    "id": "system-access-request",
+    "title": "System Access Request",
+    "description": "Request access to internal company systems.",
+    "messages": [
+      {
+        "id": "m1",
+        "type": "text",
+        "content": "Welcome to the System Access Request bot!"
+      },
+      {
+        "id": "m2",
+        "type": "input",
+        "content": "Which system do you need access to?",
+        "inputType": "select",
+        "options": ["GitHub", "Jira", "Slack", "AWS Console"],
+        "validation": {
+          "required": true
+        }
+      },
+      {
+        "id": "m3",
+        "type": "input",
+        "content": "Why do you need access?",
+        "inputType": "text",
+        "validation": {
+          "required": true,
+          "minLength": 10,
+          "errorMessage": "Please provide a meaningful reason."
+        }
+      },
+      {
+        "id": "m4",
+        "type": "action",
+        "content": "Approve or deny the access request.",
+        "actions": [
+          { "type": "approve", "label": "Grant Access" },
+          { "type": "deny", "label": "Reject" }
+        ]
+      }
+    ]
+  }

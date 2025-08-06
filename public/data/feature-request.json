@@ -1,0 +1,49 @@
+{
+    "id": "feature-request",
+    "title": "Feature Request",
+    "description": "Submit a new feature request to the product team.",
+    "messages": [
+      {
+        "id": "m1",
+        "type": "text",
+        "content": "Welcome to the Feature Request assistant!"
+      },
+      {
+        "id": "m2",
+        "type": "input",
+        "content": "What is the feature title?",
+        "inputType": "text",
+        "validation": {
+          "required": true,
+          "minLength": 5,
+          "errorMessage": "Feature title must be at least 5 characters."
+        }
+      },
+      {
+        "id": "m3",
+        "type": "input",
+        "content": "Describe the feature and its benefit.",
+        "inputType": "text",
+        "validation": {
+          "required": true,
+          "minLength": 15,
+          "errorMessage": "Please provide a full description."
+        }
+      },
+      {
+        "id": "m4",
+        "type": "input",
+        "content": "What is the target release date?",
+        "inputType": "date"
+      },
+      {
+        "id": "m5",
+        "type": "action",
+        "content": "Do you want to submit this feature request?",
+        "actions": [
+          { "type": "approve", "label": "Submit" },
+          { "type": "deny", "label": "Cancel" }
+        ]
+      }
+    ]
+  }
