@@ -35,6 +35,17 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Helper function to safely get answer
+  const getAnswer = useCallback(
+    (messageId: string): string | undefined => {
+      if (viewingHistory) {
+        return viewingHistory.answers[messageId];
+      }
+      return answers[messageId];
+    },
+    [viewingHistory, answers]
+  );
+
   const getDisplayMessages = useCallback(() => {
     if (!service) return [];
 
@@ -71,15 +82,9 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
             <ChatMessageBubble
               key={msg.id}
               message={msg}
-              answer={
-                viewingHistory
-                  ? viewingHistory.answers[msg.id]
-                  : answers[msg.id]
-              }
+              answer={getAnswer(msg.id)}
               onStartEdit={() => {
-                const currentAnswer = viewingHistory
-                  ? viewingHistory.answers[msg.id]
-                  : answers[msg.id];
+                const currentAnswer = getAnswer(msg.id);
                 if (currentAnswer && onStartEdit) {
                   onStartEdit(msg.id, currentAnswer);
                 }
@@ -88,9 +93,7 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
                 canEdit &&
                 !viewingHistory &&
                 (msg.type === "input" || msg.type === "action") &&
-                (viewingHistory
-                  ? viewingHistory.answers[msg.id]
-                  : answers[msg.id])
+                !!getAnswer(msg.id)
               }
             />
           ))}

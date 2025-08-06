@@ -1,6 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import type { ChatMessage, ChatService } from "../../../types/chat";
 
+// LocalStorage keys organization
+const LOCAL_STORAGE_KEYS = {
+  CHAT_HISTORY: (userEmail: string) => `chat-history-${userEmail}`,
+  CURRENT_CHAT: (userEmail: string) => `chat-current-${userEmail}`,
+  USER_PREFERENCES: (userEmail: string) => `chat-preferences-${userEmail}`,
+} as const;
+
 interface ChatHistory {
   id: string;
   serviceId: string;
@@ -55,7 +62,9 @@ export const useChat = ({
   // Load chat history
   useEffect(() => {
     if (userEmail) {
-      const saved = localStorage.getItem(`chat-history-${userEmail}`);
+      const saved = localStorage.getItem(
+        LOCAL_STORAGE_KEYS.CHAT_HISTORY(userEmail)
+      );
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -77,11 +86,92 @@ export const useChat = ({
   useEffect(() => {
     if (userEmail && chatHistory.length > 0) {
       localStorage.setItem(
-        `chat-history-${userEmail}`,
+        LOCAL_STORAGE_KEYS.CHAT_HISTORY(userEmail),
         JSON.stringify(chatHistory)
       );
     }
   }, [chatHistory, userEmail]);
+
+  // Save current chat state
+  useEffect(() => {
+    if (userEmail && chatStarted) {
+      const currentState = {
+        serviceId,
+        current,
+        answers,
+        chatStarted,
+        timestamp: new Date().toISOString(),
+      };
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.CURRENT_CHAT(userEmail),
+        JSON.stringify(currentState)
+      );
+    }
+  }, [userEmail, serviceId, current, answers, chatStarted]);
+
+  // Load current chat state
+  useEffect(() => {
+    if (userEmail && !chatStarted) {
+      const saved = localStorage.getItem(
+        LOCAL_STORAGE_KEYS.CURRENT_CHAT(userEmail)
+      );
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          // Only restore if it's from the same service
+          if (parsed.serviceId === serviceId) {
+            setCurrent(parsed.current || 0);
+            setAnswers(parsed.answers || {});
+            setChatStarted(parsed.chatStarted || false);
+          }
+        } catch (error) {
+          console.error("Failed to load current chat state:", error);
+        }
+      }
+    }
+  }, [userEmail, serviceId, chatStarted]);
+
+  // Save user preferences
+  const saveUserPreferences = useCallback(
+    (preferences: Record<string, any>) => {
+      if (userEmail) {
+        localStorage.setItem(
+          LOCAL_STORAGE_KEYS.USER_PREFERENCES(userEmail),
+          JSON.stringify(preferences)
+        );
+      }
+    },
+    [userEmail]
+  );
+
+  // Load user preferences
+  const loadUserPreferences = useCallback(() => {
+    if (userEmail) {
+      const saved = localStorage.getItem(
+        LOCAL_STORAGE_KEYS.USER_PREFERENCES(userEmail)
+      );
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (error) {
+          console.error("Failed to load user preferences:", error);
+        }
+      }
+    }
+    return {};
+  }, [userEmail]);
+
+  // Clear all localStorage data for user
+  const clearUserData = useCallback(() => {
+    if (userEmail) {
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.CHAT_HISTORY(userEmail));
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.CURRENT_CHAT(userEmail));
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.USER_PREFERENCES(userEmail));
+      setChatHistory([]);
+      setViewingHistory(null);
+      resetChat();
+    }
+  }, [userEmail, resetChat]);
 
   // Handle continue messages - advance to next non-continue message
   const advanceToNextMessage = useCallback(
@@ -272,7 +362,13 @@ export const useChat = ({
   const startNewChat = useCallback(() => {
     setViewingHistory(null);
     resetChat();
-  }, [resetChat]);
+    // Clear current chat state from localStorage
+    if (userEmail) {
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.CURRENT_CHAT(userEmail));
+    }
+    // Keep the currently selected service instead of switching to default
+    // The service will remain the same as what's currently active
+  }, [resetChat, userEmail]);
 
   const handleServiceSelect = useCallback(
     (newServiceId: string) => {
@@ -311,5 +407,10 @@ export const useChat = ({
     startNewChat,
     handleServiceSelect,
     setSearchQuery,
+    clearUserData,
+
+    // LocalStorage utilities
+    saveUserPreferences,
+    loadUserPreferences,
   };
 };
