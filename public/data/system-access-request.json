@@ -1,42 +1,99 @@
 {
-    "id": "system-access-request",
-    "title": "System Access Request",
-    "description": "Request access to internal company systems.",
-    "messages": [
-      {
-        "id": "m1",
-        "type": "text",
-        "content": "Welcome to the System Access Request bot!"
-      },
-      {
-        "id": "m2",
-        "type": "input",
-        "content": "Which system do you need access to?",
-        "inputType": "select",
-        "options": ["GitHub", "Jira", "Slack", "AWS Console"],
-        "validation": {
-          "required": true
-        }
-      },
-      {
-        "id": "m3",
-        "type": "input",
-        "content": "Why do you need access?",
-        "inputType": "text",
-        "validation": {
-          "required": true,
-          "minLength": 10,
-          "errorMessage": "Please provide a meaningful reason."
-        }
-      },
-      {
-        "id": "m4",
-        "type": "action",
-        "content": "Approve or deny the access request.",
-        "actions": [
-          { "type": "approve", "label": "Grant Access" },
-          { "type": "deny", "label": "Reject" }
-        ]
+  "id": "system-access-request",
+  "title": "System Access Request",
+  "description": "Request access to internal systems and applications",
+  "messages": [
+    {
+      "id": "welcome",
+      "type": "text",
+      "content": "Welcome to the System Access Request system! I'll help you request access to our internal systems. Let me gather the necessary information.",
+      "continue": true
+    },
+    {
+      "id": "employee-name",
+      "type": "input",
+      "content": "What is your full name?",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "minLength": 2,
+        "maxLength": 100,
+        "errorMessage": "Please enter your full name."
       }
-    ]
-  }
+    },
+    {
+      "id": "employee-id",
+      "type": "input",
+      "content": "What is your employee ID?",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "pattern": "^[A-Z0-9]{6,8}$",
+        "errorMessage": "Employee ID must be 6-8 characters (letters and numbers only)."
+      }
+    },
+    {
+      "id": "department",
+      "type": "input",
+      "content": "Which department do you work in?",
+      "inputType": "select",
+      "options": ["Engineering", "Marketing", "Sales", "HR", "Finance", "Operations", "Support"],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "system-access",
+      "type": "input",
+      "content": "Which system do you need access to?",
+      "inputType": "select",
+      "options": ["CRM System", "HR Portal", "Financial Dashboard", "Development Tools", "Support Portal", "Marketing Platform"],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "access-level",
+      "type": "input",
+      "content": "What level of access do you need?",
+      "inputType": "select",
+      "options": ["Read Only", "Standard User", "Power User", "Administrator"],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "reason",
+      "type": "input",
+      "content": "Please provide a business justification for this access request.",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "minLength": 10,
+        "maxLength": 500,
+        "errorMessage": "Please provide a detailed business justification."
+      }
+    },
+    {
+      "id": "manager-approval",
+      "type": "text",
+      "content": "Your access request has been submitted. It will be reviewed by your manager and the IT team. You'll receive an email confirmation shortly.",
+      "continue": true
+    },
+    {
+      "id": "submit",
+      "type": "action",
+      "content": "Do you want to submit this access request?",
+      "actions": [
+        {
+          "type": "approve",
+          "label": "Submit Request"
+        },
+        {
+          "type": "deny",
+          "label": "Cancel"
+        }
+      ]
+    }
+  ]
+}

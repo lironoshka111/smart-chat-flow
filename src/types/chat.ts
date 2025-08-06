@@ -9,19 +9,26 @@ export interface ChatAction {
 
 export interface ChatMessage {
   id: string;
-  type: ChatMessageType;
+  type: "text" | "input" | "action";
   content: string;
-  continue?: boolean;
-  inputType?: InputType;
+  continue?: boolean; // Optional: if true, this next message should be sent immediately after this one
+  inputType?: "text" | "select" | "date";
   options?: string[];
-  validation?: {
-    required?: boolean;
-    minLength?: number;
-    maxLength?: number;
-    pattern?: string;
-    errorMessage?: string;
-  };
-  actions?: ChatAction[];
+  validation?: Validation;
+  actions?: Action[];
+}
+
+export interface Validation {
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  errorMessage?: string;
+}
+
+export interface Action {
+  type: "approve" | "deny";
+  label: string;
 }
 
 export interface ChatService {

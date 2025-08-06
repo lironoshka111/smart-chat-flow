@@ -1,69 +1,108 @@
-# React + TypeScript + Vite
+# Frontend Developer Exam
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+In this exam, you will implement a ChatGPT-like UI with rich chat messages for different company services.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The application will allow users to interact with predefined chat services, and save them for later.
 
-## Expanding the ESLint configuration
+## Requirements
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Chat Services
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+You need to implement three chat services:
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+1. **Employee Onboarding**
+   - Handles onboarding a new employee to a company
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
+2. **System Access Request**
+   - Handles access requests for various systems
+
+3. **Feature Request**
+   - Submit new feature requests to the Product team
+
+### Predefined chat files
+
+Each chat service should be implemented using the provided JSON files in the `data` directory.
+
+The chat object format is as follows:
+
+```json
+{
+  "id": "string", // Unique identifier for the chat
+  "title": "string", // Display title of the chat service
+  "description": "string", // Brief description of the chat service
+  "messages": [
+    // Array of message objects
+    {
+      "id": "string", // Unique identifier for the message
+      "type": "string", // Message type: "text", "input", or "action"
+      "content": "string", // The message content or prompt
+      "continue": "boolean", // Optional: if true, this next message should be sent immediately after this one
+      "inputType": "string", // Required for "input" type: "text", "select", or "date"
+      "options": [
+        // Required for "select" type: array of option strings
+        "string"
+      ],
+      "validation": {
+        // Optional: validation rules for input
+        "required": "boolean",
+        "minLength": "number", // For "text" type
+        "maxLength": "number", // For "text" type
+        "pattern": "string", // For "text" type: regex pattern for validation
+        "errorMessage": "string" // Error message to display if validation fails
       },
-      // other options...
-    },
-  },
-])
+      "actions": [
+        // Required for "action" type: array of action objects
+        {
+          "type": "string", // "approve" or "deny"
+          "label": "string" // Display text for the action button
+        }
+      ]
+    }
+  ]
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Application Flow
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Initial Screen**
+   - Display a prominent "Join" / "Login" buttons
+   - Required user details are `fullName` + `email` + `password`
+   - Store user details in localStorage
+   - Let user to "Logout" as well
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+2. **Service Selection**
+   - Allow users to choose from available chat services list
+   - Display chat UI after selection with the first message
+
+3. **Chat Interface**
+   - Main input field with submit button
+   - Sequential message display
+   - Support for all message types
+   - Validation for action and input messages
+
+4. **Completion**
+   - Show summary modal with all answers
+   - Display chat history
+   - Allow viewing past chats with disabled input
+   - Option to view summary again
+
+## Technical Requirements
+
+- TypeScript
+- React for frontend
+- Simulate backend operations in the frontend
+- Use localStorage for data persistence (user, chat history)
+
+## Evaluation Criteria
+
+- Code quality and organization
+- Requirements understanding
+- Simple and clear code structure
+- Error handling
+- Performance
+- Security considerations
+- Data management in localStorage
+- State management
+- Component design and reusability

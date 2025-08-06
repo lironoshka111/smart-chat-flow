@@ -1,0 +1,159 @@
+{
+  "id": "employee-onboarding",
+  "title": "Employee Onboarding",
+  "description": "Complete your employee onboarding process",
+  "messages": [
+    {
+      "id": "welcome",
+      "type": "text",
+      "content": "Welcome to the Employee Onboarding system! I'll help you complete your onboarding process. Let's get started with some basic information.",
+      "continue": true
+    },
+    {
+      "id": "personal-info",
+      "type": "text",
+      "content": "First, let's collect your personal information. This will help us set up your employee profile correctly.",
+      "continue": true
+    },
+    {
+      "id": "first-name",
+      "type": "input",
+      "content": "What is your first name?",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "minLength": 2,
+        "maxLength": 50,
+        "errorMessage": "Please enter your first name."
+      }
+    },
+    {
+      "id": "last-name",
+      "type": "input",
+      "content": "What is your last name?",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "minLength": 2,
+        "maxLength": 50,
+        "errorMessage": "Please enter your last name."
+      }
+    },
+    {
+      "id": "email",
+      "type": "input",
+      "content": "What is your email address?",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+        "errorMessage": "Please enter a valid email address."
+      }
+    },
+    {
+      "id": "phone",
+      "type": "input",
+      "content": "What is your phone number?",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "pattern": "^[+]?[0-9\\s\\-\\(\\)]{10,}$",
+        "errorMessage": "Please enter a valid phone number."
+      }
+    },
+    {
+      "id": "work-info",
+      "type": "text",
+      "content": "Great! Now let's collect your work-related information.",
+      "continue": true
+    },
+    {
+      "id": "position",
+      "type": "input",
+      "content": "What is your job title/position?",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "minLength": 2,
+        "maxLength": 100,
+        "errorMessage": "Please enter your job title."
+      }
+    },
+    {
+      "id": "department",
+      "type": "input",
+      "content": "Which department will you be working in?",
+      "inputType": "select",
+      "options": ["Engineering", "Marketing", "Sales", "HR", "Finance", "Operations", "Support", "Product", "Design"],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "start-date",
+      "type": "input",
+      "content": "When is your start date?",
+      "inputType": "date",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "work-location",
+      "type": "input",
+      "content": "Where will you be working?",
+      "inputType": "select",
+      "options": ["Office", "Remote", "Hybrid"],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "equipment",
+      "type": "text",
+      "content": "Perfect! Now let's discuss your equipment needs.",
+      "continue": true
+    },
+    {
+      "id": "computer",
+      "type": "input",
+      "content": "What type of computer do you prefer?",
+      "inputType": "select",
+      "options": ["MacBook Pro", "MacBook Air", "Windows Laptop", "Desktop PC", "No preference"],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "additional-equipment",
+      "type": "input",
+      "content": "Do you need any additional equipment? (monitor, keyboard, mouse, etc.)",
+      "inputType": "text",
+      "validation": {
+        "required": false,
+        "maxLength": 200
+      }
+    },
+    {
+      "id": "completion",
+      "type": "text",
+      "content": "Excellent! Your onboarding information has been collected. Our HR team will review your details and contact you with next steps.",
+      "continue": true
+    },
+    {
+      "id": "submit",
+      "type": "action",
+      "content": "Would you like to submit your onboarding information?",
+      "actions": [
+        {
+          "type": "approve",
+          "label": "Submit Onboarding"
+        },
+        {
+          "type": "deny",
+          "label": "Cancel"
+        }
+      ]
+    }
+  ]
+} 

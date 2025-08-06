@@ -21,6 +21,6 @@ export const useUserStore = create<UserStore>()(
     }),
     {
       name: "smart-chat-user",
-    }
-  )
+    },
+  ),
 );

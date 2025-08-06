@@ -1,49 +1,77 @@
 {
-    "id": "feature-request",
-    "title": "Feature Request",
-    "description": "Submit a new feature request to the product team.",
-    "messages": [
-      {
-        "id": "m1",
-        "type": "text",
-        "content": "Welcome to the Feature Request assistant!"
-      },
-      {
-        "id": "m2",
-        "type": "input",
-        "content": "What is the feature title?",
-        "inputType": "text",
-        "validation": {
-          "required": true,
-          "minLength": 5,
-          "errorMessage": "Feature title must be at least 5 characters."
-        }
-      },
-      {
-        "id": "m3",
-        "type": "input",
-        "content": "Describe the feature and its benefit.",
-        "inputType": "text",
-        "validation": {
-          "required": true,
-          "minLength": 15,
-          "errorMessage": "Please provide a full description."
-        }
-      },
-      {
-        "id": "m4",
-        "type": "input",
-        "content": "What is the target release date?",
-        "inputType": "date"
-      },
-      {
-        "id": "m5",
-        "type": "action",
-        "content": "Do you want to submit this feature request?",
-        "actions": [
-          { "type": "approve", "label": "Submit" },
-          { "type": "deny", "label": "Cancel" }
-        ]
+  "id": "feature-request",
+  "title": "Feature Request",
+  "description": "Submit a new feature request for our product",
+  "messages": [
+    {
+      "id": "welcome",
+      "type": "text",
+      "content": "Welcome to the Feature Request system! I'll help you submit a new feature request. Let me gather some information from you.",
+      "continue": true
+    },
+    {
+      "id": "feature-name",
+      "type": "input",
+      "content": "What would you like to name this feature?",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "minLength": 3,
+        "maxLength": 100,
+        "errorMessage": "Feature name must be between 3 and 100 characters."
       }
-    ]
-  }
+    },
+    {
+      "id": "feature-description",
+      "type": "input",
+      "content": "Please describe the feature in detail. What problem does it solve?",
+      "inputType": "text",
+      "validation": {
+        "required": true,
+        "minLength": 10,
+        "maxLength": 500,
+        "errorMessage": "Description must be between 10 and 500 characters."
+      }
+    },
+    {
+      "id": "priority",
+      "type": "input",
+      "content": "What is the priority level for this feature?",
+      "inputType": "select",
+      "options": ["Low", "Medium", "High", "Critical"],
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "target-release",
+      "type": "input",
+      "content": "When would you like this feature to be released?",
+      "inputType": "date",
+      "validation": {
+        "required": true
+      }
+    },
+    {
+      "id": "confirmation",
+      "type": "text",
+      "content": "Thank you for your feature request! I've recorded all the details. Our team will review it and get back to you soon.",
+      "continue": true
+    },
+    {
+      "id": "submit",
+      "type": "action",
+      "content": "Would you like to submit this feature request now?",
+      "actions": [
+        {
+          "type": "approve",
+          "label": "Submit Request"
+        },
+        {
+          "type": "deny",
+          "label": "Cancel"
+        }
+      ]
+    }
+  ]
+}

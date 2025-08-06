@@ -1,135 +1,90 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { listChatServices } from "../services/chatService";
 import { useUserStore } from "../stores/userStore";
-import {
-  ArrowRightIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-} from "@heroicons/react/24/outline";
+import { LoadingSpinner } from "./ui/LoadingSpinner";
+import { ErrorMessage } from "./ui/ErrorMessage";
 
-export const ServiceSelection: React.FC = () => {
-  const navigate = useNavigate();
+interface ServiceSelectionProps {
+  onServiceSelect: (serviceId: string) => void;
+}
+
+export const ServiceSelection: React.FC<ServiceSelectionProps> = ({
+  onServiceSelect,
+}) => {
   const { user, logout } = useUserStore();
-  const { data, isLoading, error } = useQuery({
+
+  const {
+    data: services,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["chat-services-list"],
     queryFn: listChatServices,
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 
-  const handleServiceSelect = (serviceId: string) => {
-    navigate(`/chat/${serviceId}`);
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
-
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="bg-white rounded-xl shadow-lg p-8 w-96">
-          <div className="flex flex-col items-center text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-            <h2 className="text-xl font-semibold text-gray-800">
-              Loading services...
-            </h2>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner message="Loading services..." />;
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="bg-white rounded-xl shadow-lg p-8 w-96">
-          <div className="flex flex-col items-center text-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-4">
-              <ExclamationTriangleIcon className="w-6 h-6 text-red-600" />
-            </div>
-            <span className="text-red-600 font-medium">
-              Failed to load services.
-            </span>
-          </div>
-        </div>
-      </div>
+      <ErrorMessage title="Failed to load services" message={error.message} />
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top bar */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center">
-            <h1 className="text-xl font-bold text-gray-900">
-              Hi, {user?.fullName}!
-            </h1>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center p-6">
+      <div className="max-w-4xl w-full">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Smart Chat Flow
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Welcome back, {user?.email}! Choose a service to get started with
+            your request.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {services?.map((service) => (
+            <div
+              key={service.id}
+              data-testid={`service-${service.id}`}
+              onClick={() => onServiceSelect(service.id)}
+              className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer border border-gray-200 hover:border-blue-300 group"
+            >
+              <div className="p-8">
+                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-6 group-hover:from-blue-600 group-hover:to-indigo-700 transition-all duration-300">
+                  <span className="text-white font-bold text-lg">
+                    {service.title.charAt(0)}
+                  </span>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                  {service.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {service.description}
+                </p>
+                <div className="mt-6">
+                  <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform group-hover:scale-105 shadow-md hover:shadow-lg">
+                    Start Chat
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
           <button
-            onClick={handleLogout}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors"
+            onClick={logout}
+            className="text-gray-500 hover:text-gray-700 font-medium transition-colors"
           >
             Logout
           </button>
-        </div>
-      </div>
-
-      <div className="p-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Choose a Service
-            </h1>
-            <p className="text-gray-600 text-lg">
-              Select the service you'd like to interact with
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {data?.map((service) => (
-              <div
-                key={service.id}
-                className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group border border-gray-100"
-                onClick={() => handleServiceSelect(service.id)}
-              >
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
-                      {service.title}
-                    </h2>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      New
-                    </span>
-                  </div>
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    {service.description}
-                  </p>
-                  <div className="flex justify-end">
-                    <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                      Start Chat
-                      <ArrowRightIcon className="ml-2 h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {data && data.length === 0 && (
-            <div className="bg-white rounded-xl shadow-lg">
-              <div className="p-8 text-center">
-                <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-4">
-                  <InformationCircleIcon className="w-6 h-6 text-blue-600" />
-                </div>
-                <span className="text-blue-600 font-medium">
-                  No chat services available.
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

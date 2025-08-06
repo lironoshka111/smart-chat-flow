@@ -36,7 +36,9 @@ export const Auth: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const err = validate();
-    if (err) return setError(err);
+    if (err) {
+      return setError(err);
+    }
     setError("");
     if (mode === "join") {
       localStorage.setItem(
@@ -45,15 +47,18 @@ export const Auth: React.FC = () => {
           fullName: form.fullName,
           email: form.email,
           password: form.password,
-        })
+        }),
       );
       setUser({ fullName: form.fullName, email: form.email });
     } else {
       const stored = localStorage.getItem(`user-${form.email}`);
-      if (!stored) return setError("User not found. Please join first.");
+      if (!stored) {
+        return setError("User not found. Please join first.");
+      }
       const parsed = JSON.parse(stored);
-      if (parsed.password !== form.password)
+      if (parsed.password !== form.password) {
         return setError("Incorrect password.");
+      }
       setUser({ fullName: parsed.fullName, email: parsed.email });
     }
     setForm(initialForm);

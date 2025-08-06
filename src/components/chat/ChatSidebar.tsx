@@ -1,0 +1,173 @@
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { listChatServices } from "../../services/chatService";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+
+interface ChatHistory {
+  id: string;
+  serviceId: string;
+  serviceTitle: string;
+  serviceDescription: string;
+  timestamp: Date;
+  answers: Record<string, string>;
+  firstInput?: string;
+}
+
+interface ChatSidebarProps {
+  chatHistory: ChatHistory[];
+  viewingHistory: ChatHistory | null;
+  searchQuery: string;
+  currentServiceId: string;
+  onServiceSelect: (_serviceId: string) => void;
+  onViewHistory: (_history: ChatHistory) => void;
+  onSearchChange: (_query: string) => void;
+}
+
+export const ChatSidebar: React.FC<ChatSidebarProps> = ({
+  chatHistory,
+  viewingHistory,
+  searchQuery,
+  currentServiceId,
+  onServiceSelect,
+  onViewHistory,
+  onSearchChange,
+}) => {
+  const [searchVisible, setSearchVisible] = useState(false);
+
+  const { data: services, isLoading: servicesLoading } = useQuery({
+    queryKey: ["chat-services-list"],
+    queryFn: listChatServices,
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
+
+  const getHistoryName = (history: ChatHistory) => {
+    if (history.firstInput) {
+      return `${history.serviceTitle} - ${history.firstInput}`;
+    }
+    return history.serviceTitle;
+  };
+
+  const filteredHistory = chatHistory.filter((history) =>
+    getHistoryName(history).toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  return (
+    <div className="w-80 bg-white shadow-xl border-r border-gray-200 flex flex-col">
+      <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">
+          Smart Chat Flow
+        </h2>
+
+        <div className="mb-4">
+          <p className="text-xs text-gray-600 mb-2 font-medium">
+            Available Services:
+          </p>
+          <div className="space-y-2">
+            {servicesLoading ? (
+              <div className="text-xs text-gray-500">Loading services...</div>
+            ) : (
+              services?.map((service) => (
+                <div
+                  key={service.id}
+                  className={`rounded-lg p-3 transition-all duration-200 cursor-pointer border shadow-sm hover:shadow-md ${
+                    currentServiceId === service.id
+                      ? "bg-blue-100 border-blue-300 shadow-md"
+                      : "bg-white border-gray-200 hover:bg-blue-50 hover:border-blue-300"
+                  }`}
+                  onClick={() => onServiceSelect(service.id)}
+                >
+                  <h4
+                    className={`font-semibold text-sm ${
+                      currentServiceId === service.id
+                        ? "text-blue-900"
+                        : "text-gray-900"
+                    }`}
+                  >
+                    {service.title}
+                  </h4>
+                  <p
+                    className={`text-xs mt-1 leading-relaxed ${
+                      currentServiceId === service.id
+                        ? "text-blue-700"
+                        : "text-gray-600"
+                    }`}
+                  >
+                    {service.description}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-gray-700">
+              Chat History
+            </h3>
+            <button
+              onClick={() => setSearchVisible(!searchVisible)}
+              className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              title="Search chats"
+            >
+              <MagnifyingGlassIcon className="w-4 h-4" />
+            </button>
+          </div>
+
+          {searchVisible && (
+            <div className="relative mb-4">
+              <input
+                type="text"
+                placeholder="Search chats..."
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                className="w-full pl-3 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-50"
+                autoFocus
+              />
+            </div>
+          )}
+
+          <div className="border-t border-gray-200 mb-4"></div>
+
+          <div className="space-y-2">
+            {filteredHistory.map((history) => (
+              <div
+                key={history.id}
+                data-testid="chat-history-item"
+                className={`rounded-lg p-3 hover:bg-gray-100 transition-all duration-200 cursor-pointer border ${
+                  viewingHistory?.id === history.id
+                    ? "bg-blue-50 border-blue-200 shadow-sm"
+                    : "bg-gray-50 border-gray-200 hover:border-gray-300"
+                }`}
+                onClick={() => onViewHistory(history)}
+              >
+                <h3 className="font-medium text-gray-900 text-sm leading-tight">
+                  {getHistoryName(history)}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  {history.timestamp.toLocaleDateString()}{" "}
+                  {history.timestamp.toLocaleTimeString()}
+                </p>
+                {viewingHistory?.id === history.id && (
+                  <div className="mt-2">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Viewing
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+            {filteredHistory.length === 0 && (
+              <div className="text-center text-gray-500 py-8">
+                {searchQuery ? "No chats found" : "No chat history yet"}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
