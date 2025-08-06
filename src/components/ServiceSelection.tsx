@@ -1,14 +1,23 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { listChatServices } from "../services/chatService";
+import {
+  ArrowRightIcon,
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+} from "@heroicons/react/24/outline";
 
-export const ServiceSelection: React.FC<{
-  onSelect: (serviceId: string) => void;
-}> = ({ onSelect }) => {
+export const ServiceSelection: React.FC = () => {
+  const navigate = useNavigate();
   const { data, isLoading, error } = useQuery({
     queryKey: ["chat-services-list"],
     queryFn: listChatServices,
   });
+
+  const handleServiceSelect = (serviceId: string) => {
+    navigate(`/chat/${serviceId}`);
+  };
 
   if (isLoading) {
     return (
@@ -31,19 +40,7 @@ export const ServiceSelection: React.FC<{
         <div className="bg-white rounded-xl shadow-lg p-8 w-96">
           <div className="flex flex-col items-center text-center">
             <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-4">
-              <svg
-                className="w-6 h-6 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <ExclamationTriangleIcon className="w-6 h-6 text-red-600" />
             </div>
             <span className="text-red-600 font-medium">
               Failed to load services.
@@ -71,7 +68,7 @@ export const ServiceSelection: React.FC<{
             <div
               key={service.id}
               className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer group border border-gray-100"
-              onClick={() => onSelect(service.id)}
+              onClick={() => handleServiceSelect(service.id)}
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -88,19 +85,7 @@ export const ServiceSelection: React.FC<{
                 <div className="flex justify-end">
                   <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                     Start Chat
-                    <svg
-                      className="ml-2 h-4 w-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
+                    <ArrowRightIcon className="ml-2 h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -112,19 +97,7 @@ export const ServiceSelection: React.FC<{
           <div className="bg-white rounded-xl shadow-lg">
             <div className="p-8 text-center">
               <div className="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mx-auto mb-4">
-                <svg
-                  className="w-6 h-6 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+                <InformationCircleIcon className="w-6 h-6 text-blue-600" />
               </div>
               <span className="text-blue-600 font-medium">
                 No chat services available.

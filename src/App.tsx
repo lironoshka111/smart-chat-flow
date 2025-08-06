@@ -1,4 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { useUserStore } from "./stores/userStore";
 import { Auth } from "./components/Auth";
 import { ServiceSelection } from "./components/ServiceSelection";
@@ -6,16 +12,26 @@ import { Chat } from "./components/Chat";
 
 const App: React.FC = () => {
   const { user } = useUserStore();
-  const [selectedService, setSelectedService] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!user) setSelectedService(null);
-  }, [user]);
-
-  if (!user) return <Auth />;
-  if (!selectedService)
-    return <ServiceSelection onSelect={setSelectedService} />;
-  return <Chat serviceId={selectedService} />;
+  return (
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={user ? <Navigate to="/services" replace /> : <Auth />}
+        />
+        <Route
+          path="/services"
+          element={user ? <ServiceSelection /> : <Navigate to="/" replace />}
+        />
+        <Route
+          path="/chat/:serviceId"
+          element={user ? <Chat /> : <Navigate to="/" replace />}
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
 };
 
 export default App;

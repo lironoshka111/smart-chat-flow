@@ -7,6 +7,12 @@ import { ChatInput } from "./chat/ChatInput";
 import { ChatActions } from "./chat/ChatActions";
 import { ChatSummaryModal } from "./chat/ChatSummaryModal";
 import { useUserStore } from "../stores/userStore";
+import { useNavigate, useParams, Navigate } from "react-router-dom";
+import {
+  Bars3Icon,
+  XMarkIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
 
 interface ChatHistory {
   id: string;
@@ -16,8 +22,15 @@ interface ChatHistory {
   answers: Record<string, string>;
 }
 
-export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
+export const Chat: React.FC = () => {
   const { logout } = useUserStore();
+  const navigate = useNavigate();
+  const { serviceId } = useParams<{ serviceId: string }>();
+
+  if (!serviceId) {
+    return <Navigate to="/services" replace />;
+  }
+
   const {
     data: service,
     isLoading,
@@ -36,6 +49,7 @@ export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
     null
   );
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [chatStarted, setChatStarted] = useState(false);
 
   if (isLoading)
     return (
@@ -56,19 +70,7 @@ export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
         <div className="bg-white rounded-xl shadow-lg p-8 w-96">
           <div className="flex flex-col items-center text-center">
             <div className="flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-4">
-              <svg
-                className="w-6 h-6 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <ExclamationTriangleIcon className="w-6 h-6 text-red-600" />
             </div>
             <span className="text-red-600 font-medium">
               Failed to load chat service.
@@ -147,6 +149,7 @@ export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
     setAnswers({});
     setInput("");
     setInputError("");
+    setChatStarted(false);
   };
 
   const viewHistory = (history: ChatHistory) => {
@@ -160,6 +163,17 @@ export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
     setAnswers({});
     setInput("");
     setInputError("");
+    setChatStarted(false);
+  };
+
+  const handleStartChat = () => {
+    setChatStarted(true);
+    setCurrent(1); // Move to the first input/action message
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
   return (
@@ -177,19 +191,7 @@ export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
               className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               onClick={() => setSidebarOpen(false)}
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
 
@@ -236,19 +238,7 @@ export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
                 className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 mr-2"
                 onClick={() => setSidebarOpen(true)}
               >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
+                <Bars3Icon className="w-6 h-6" />
               </button>
               <h1 className="text-xl font-bold text-gray-900">
                 {viewingHistory
@@ -266,7 +256,7 @@ export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
                 </button>
               )}
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors"
               >
                 Logout
@@ -292,7 +282,23 @@ export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
               ))}
             </div>
 
+            {/* Start Chat Button - shows after first text message */}
             {!viewingHistory &&
+              !chatStarted &&
+              current === 0 &&
+              service.messages[0]?.type === "text" && (
+                <div className="text-center">
+                  <button
+                    onClick={handleStartChat}
+                    className="bg-blue-600 text-white py-4 px-8 rounded-2xl font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl text-lg"
+                  >
+                    Start Chat
+                  </button>
+                </div>
+              )}
+
+            {!viewingHistory &&
+              chatStarted &&
               currentMsg &&
               currentMsg.type === "input" &&
               !answers[currentMsg.id] && (
@@ -306,6 +312,7 @@ export const Chat: React.FC<{ serviceId: string }> = ({ serviceId }) => {
               )}
 
             {!viewingHistory &&
+              chatStarted &&
               currentMsg &&
               currentMsg.type === "action" &&
               !answers[currentMsg.id] && (
