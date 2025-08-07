@@ -104,20 +104,30 @@ export const useChatFlow = (
     if (!service) return;
 
     const currentMsg = service.messages[current];
-    if (!currentMsg) return;
+    if (!currentMsg || currentMsg.type !== "action") return;
 
-    if (label.toLowerCase() === "cancel" || label.toLowerCase() === "deny") {
+    // Find the action that was selected
+    const selectedAction = currentMsg.actions?.find(
+      (action) => action.label === label,
+    );
+
+    // If it's a deny action, cancel the chat
+    if (selectedAction?.type === "deny") {
       setChatCancelled(true);
-      setAnswers((prev) => ({ ...prev, [currentMsg.id]: label }));
-      setChatStarted(false);
-      setShowSummary(false);
+      setInput("");
+      setInputError("");
       return;
     }
 
+    // For approve actions, continue with normal flow
     setAnswers((prev) => ({ ...prev, [currentMsg.id]: label }));
     const nextIndex = getNextMessageIndex(service.messages, current);
     setCurrent(nextIndex);
-    setShowSummary(true);
+
+    // Check if we've reached the end
+    if (nextIndex >= service.messages.length) {
+      setShowSummary(true);
+    }
   };
 
   const startEditing = (messageId: string, currentValue: string) => {

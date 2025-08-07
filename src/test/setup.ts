@@ -13,7 +13,7 @@ Object.defineProperty(window, "localStorage", {
 });
 
 // Mock fetch
-global.fetch = vi.fn();
+globalThis.fetch = vi.fn() as typeof fetch;
 
 // Reset all mocks before each test
 beforeEach(() => {

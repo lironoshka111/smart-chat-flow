@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { validateChatInput, getNextMessageIndex } from "../chatValidation";
-import type { ChatMessage } from "../../types/chat";
+import type { ChatMessage, Validation } from "../../types/chat";
 
 describe("chatValidation", () => {
   describe("validateChatInput", () => {
-    const createMessage = (validation?: unknown): ChatMessage => ({
+    const createMessage = (validation?: Validation): ChatMessage => ({
       id: "test",
       type: "input",
       content: "Test message",
@@ -112,7 +112,7 @@ describe("chatValidation", () => {
         const message = createMessage({ pattern: emailPattern });
 
         expect(validateChatInput(message, "invalid-email")).toBe(
-          "Invalid format.",
+          "Invalid format."
         );
         expect(validateChatInput(message, "valid@example.com")).toBe("");
       });

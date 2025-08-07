@@ -64,8 +64,21 @@ describe("ChatSidebar", () => {
     mockUseQuery.mockReturnValue({
       data: mockServices,
       isLoading: false,
+      isError: false,
+      isPending: false,
+      isLoadingError: false,
+      isRefetchError: false,
       error: null,
-    });
+      status: "success",
+      fetchStatus: "idle",
+      isSuccess: true,
+      isFetching: false,
+      isRefetching: false,
+      isPaused: false,
+      isPlaceholderData: false,
+      refetch: vi.fn(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
   });
 
   describe("rendering", () => {
@@ -100,8 +113,21 @@ describe("ChatSidebar", () => {
       mockUseQuery.mockReturnValue({
         data: undefined,
         isLoading: true,
+        isError: false,
+        isPending: false,
+        isLoadingError: false,
+        isRefetchError: false,
         error: null,
-      });
+        status: "pending",
+        fetchStatus: "fetching",
+        isSuccess: false,
+        isFetching: true,
+        isRefetching: false,
+        isPaused: false,
+        isPlaceholderData: false,
+        refetch: vi.fn(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
 
       render(<ChatSidebar {...mockProps} />);
 
@@ -170,7 +196,7 @@ describe("ChatSidebar", () => {
       await user.click(firstService);
 
       expect(mockProps.onServiceSelect).toHaveBeenCalledWith(
-        mockServices[0].id,
+        mockServices[0].id
       );
     });
 
@@ -183,7 +209,7 @@ describe("ChatSidebar", () => {
         .closest("div");
       expect(currentServiceElement).toHaveClass(
         "bg-blue-100",
-        "border-blue-300",
+        "border-blue-300"
       );
     });
 
@@ -203,10 +229,10 @@ describe("ChatSidebar", () => {
       render(<ChatSidebar {...mockProps} />);
 
       expect(
-        screen.getByText("Employee Onboarding - John Doe"),
+        screen.getByText("Employee Onboarding - John Doe")
       ).toBeInTheDocument();
       expect(
-        screen.getByText("Feature Request - Dark mode"),
+        screen.getByText("Feature Request - Dark mode")
       ).toBeInTheDocument();
     });
 
@@ -262,7 +288,7 @@ describe("ChatSidebar", () => {
 
       // Search input should not be visible initially
       expect(
-        screen.queryByPlaceholderText("Search chats..."),
+        screen.queryByPlaceholderText("Search chats...")
       ).not.toBeInTheDocument();
 
       // Click search icon
@@ -271,7 +297,7 @@ describe("ChatSidebar", () => {
 
       // Search input should now be visible
       expect(
-        screen.getByPlaceholderText("Search chats..."),
+        screen.getByPlaceholderText("Search chats...")
       ).toBeInTheDocument();
     });
 
@@ -289,10 +315,10 @@ describe("ChatSidebar", () => {
       // Wait for debounced search
       await waitFor(() => {
         expect(
-          screen.getByText("Employee Onboarding - John Doe"),
+          screen.getByText("Employee Onboarding - John Doe")
         ).toBeInTheDocument();
         expect(
-          screen.queryByText("Feature Request - Dark mode"),
+          screen.queryByText("Feature Request - Dark mode")
         ).not.toBeInTheDocument();
       });
     });
@@ -349,7 +375,7 @@ describe("ChatSidebar", () => {
       render(<ChatSidebar {...mockProps} />);
 
       expect(
-        screen.getByText("Employee Onboarding - John Doe"),
+        screen.getByText("Employee Onboarding - John Doe")
       ).toBeInTheDocument();
     });
 
@@ -381,8 +407,21 @@ describe("ChatSidebar", () => {
       mockUseQuery.mockReturnValue({
         data: undefined,
         isLoading: false,
+        isError: false,
+        isPending: false,
+        isLoadingError: false,
+        isRefetchError: false,
         error: null,
-      });
+        status: "success",
+        fetchStatus: "idle",
+        isSuccess: true,
+        isFetching: false,
+        isRefetching: false,
+        isPaused: false,
+        isPlaceholderData: false,
+        refetch: vi.fn(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
 
       render(<ChatSidebar {...mockProps} />);
 
@@ -394,8 +433,21 @@ describe("ChatSidebar", () => {
       mockUseQuery.mockReturnValue({
         data: undefined,
         isLoading: false,
+        isError: true,
+        isPending: false,
+        isLoadingError: false,
+        isRefetchError: false,
         error: new Error("Failed to fetch"),
-      });
+        status: "error",
+        fetchStatus: "idle",
+        isSuccess: false,
+        isFetching: false,
+        isRefetching: false,
+        isPaused: false,
+        isPlaceholderData: false,
+        refetch: vi.fn(),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
 
       render(<ChatSidebar {...mockProps} />);
 

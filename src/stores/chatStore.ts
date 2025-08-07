@@ -68,6 +68,15 @@ export const useChatStore = create<ChatStore>()(
         chatHistory: state.chatHistory,
         currentChatState: state.currentChatState,
       }),
-    },
-  ),
+      onRehydrateStorage: () => (state) => {
+        // Convert timestamp strings back to Date objects when loading from storage
+        if (state?.chatHistory) {
+          state.chatHistory = state.chatHistory.map((history) => ({
+            ...history,
+            timestamp: new Date(history.timestamp),
+          }));
+        }
+      },
+    }
+  )
 );

@@ -48,7 +48,7 @@ export const ChatSidebar = ({
   const filteredHistory = chatHistory.filter((history) =>
     getHistoryName(history)
       .toLowerCase()
-      .includes(debouncedSearchQuery.toLowerCase()),
+      .includes(debouncedSearchQuery.toLowerCase())
   );
 
   return (
@@ -170,8 +170,8 @@ export const ChatSidebar = ({
                   {getHistoryName(history)}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1">
-                  {history.timestamp.toLocaleDateString()}{" "}
-                  {history.timestamp.toLocaleTimeString()}
+                  {new Date(history.timestamp).toLocaleDateString()}{" "}
+                  {new Date(history.timestamp).toLocaleTimeString()}
                 </p>
                 {viewingHistory?.id === history.id && (
                   <div className="mt-2">

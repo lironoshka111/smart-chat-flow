@@ -111,15 +111,16 @@ export const Chat = ({ serviceId, onServiceSelect }: ChatProps) => {
           inputError={inputError}
           editingMessageId={editingMessageId}
           onInputChange={handleInputChange}
-          onInputSubmit={() => handleSubmit(service)}
-          onAction={(label) => handleAction(label, service)}
+          onInputSubmit={() => handleSubmit()}
+          onAction={(label) => handleAction(label)}
           onCancelEdit={cancelEdit}
+          onStartNewChat={startNewChat}
         />
       </div>
 
       <ChatSummaryModal
         open={showSummary}
-        onClose={() => handleCloseSummary(service)}
+        onClose={() => handleCloseSummary()}
         messages={service.messages}
         answers={viewingHistory ? viewingHistory.answers : answers}
       />

@@ -15,6 +15,7 @@ interface ChatInputAreaProps {
   onInputSubmit: () => void;
   onAction: (label: string) => void;
   onCancelEdit: () => void;
+  onStartNewChat: () => void;
 }
 
 export const ChatInputArea = ({
@@ -30,6 +31,7 @@ export const ChatInputArea = ({
   onInputSubmit,
   onAction,
   onCancelEdit,
+  onStartNewChat,
 }: ChatInputAreaProps) => {
   if (viewingHistory) return null;
 
@@ -42,6 +44,41 @@ export const ChatInputArea = ({
     currentMsg?.type === "action" &&
     !answers[currentMsg?.id] &&
     !chatCancelled;
+
+  // Show cancelled message if chat was cancelled
+  if (chatCancelled && chatStarted) {
+    return (
+      <div className="border-t border-gray-200 bg-white p-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center space-y-3">
+            <p className="text-red-600 font-medium">
+              ❌ Request has been cancelled
+            </p>
+            <button
+              data-testid="new-chat-cancelled-button"
+              onClick={onStartNewChat}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md"
+            >
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
+              Start New Chat
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!shouldShowInput && !shouldShowAction) return null;
 
@@ -69,7 +106,7 @@ export const ChatInputArea = ({
                 onClick={onCancelEdit}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
-                Cancel
+                Cancel Edit
               </button>
             )}
           </div>
