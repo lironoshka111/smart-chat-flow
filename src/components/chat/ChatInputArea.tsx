@@ -1,17 +1,6 @@
-import React from "react";
 import { ChatInput } from "./ChatInput";
 import { ChatActions } from "./ChatActions";
-import type { ChatMessage } from "../../types/chat";
-
-interface ChatHistory {
-  id: string;
-  serviceId: string;
-  serviceTitle: string;
-  serviceDescription: string;
-  timestamp: Date;
-  answers: Record<string, string>;
-  firstInput?: string;
-}
+import type { ChatMessage, ChatHistory } from "../../types/chat";
 
 interface ChatInputAreaProps {
   viewingHistory: ChatHistory | null;
@@ -28,7 +17,7 @@ interface ChatInputAreaProps {
   onCancelEdit: () => void;
 }
 
-export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
+export const ChatInputArea = ({
   viewingHistory,
   chatStarted,
   currentMsg,
@@ -41,7 +30,7 @@ export const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onInputSubmit,
   onAction,
   onCancelEdit,
-}) => {
+}: ChatInputAreaProps) => {
   if (viewingHistory) return null;
 
   const shouldShowInput =

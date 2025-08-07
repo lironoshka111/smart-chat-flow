@@ -1,16 +1,7 @@
-import React, { useCallback, useRef, useEffect } from "react";
+import { useEffect } from "react";
 import { ChatMessageBubble } from "./ChatMessage";
-import type { ChatMessage, ChatService } from "../../types/chat";
-
-interface ChatHistory {
-  id: string;
-  serviceId: string;
-  serviceTitle: string;
-  serviceDescription: string;
-  timestamp: Date;
-  answers: Record<string, string>;
-  firstInput?: string;
-}
+import type { ChatMessage, ChatService, ChatHistory } from "../../types/chat";
+import { useScroll } from "./hooks/useScroll";
 
 interface ChatMessagesProps {
   answers: Record<string, string>;
@@ -23,7 +14,7 @@ interface ChatMessagesProps {
   canEdit?: boolean;
 }
 
-export const ChatMessages: React.FC<ChatMessagesProps> = ({
+export const ChatMessages = ({
   answers,
   viewingHistory,
   chatStarted,
@@ -32,50 +23,41 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
   onStartChat,
   onStartEdit,
   canEdit = false,
-}) => {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+}: ChatMessagesProps) => {
+  // Simple helper - no need for useCallback
+  const getAnswer = (messageId: string): string | undefined => {
+    return viewingHistory
+      ? viewingHistory.answers[messageId]
+      : answers[messageId];
+  };
 
-  // Helper function to safely get answer
-  const getAnswer = useCallback(
-    (messageId: string): string | undefined => {
-      if (viewingHistory) {
-        return viewingHistory.answers[messageId];
-      }
-      return answers[messageId];
-    },
-    [viewingHistory, answers]
-  );
-
-  const getDisplayMessages = useCallback(() => {
+  const getDisplayMessages = () => {
     if (!service) return [];
 
     if (viewingHistory) {
-      if (viewingHistory.serviceId !== service.id) {
-        return [];
-      }
+      if (viewingHistory.serviceId !== service.id) return [];
       return service.messages.map((msg: ChatMessage) => ({
         ...msg,
         hasAnswer: !!viewingHistory.answers[msg.id],
       }));
     }
 
-    // For active chat, show messages based on current progress
-    // Only show messages up to the current index
+    // For active chat, show messages up to current index
     return service.messages.slice(0, current + 1);
-  }, [service, current, viewingHistory]);
+  };
 
   const displayMessages = getDisplayMessages();
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // Simple scroll management
+  const { containerRef, scrollToBottom } = useScroll();
 
+  // Auto-scroll to bottom when new messages are added
   useEffect(() => {
     scrollToBottom();
-  }, [displayMessages]);
+  }, [displayMessages, scrollToBottom]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 bg-gray-50">
+    <div className="flex-1 overflow-y-auto p-6 bg-gray-50" ref={containerRef}>
       <div className="max-w-4xl mx-auto">
         <div className="space-y-6 mb-6">
           {displayMessages.map((msg: ChatMessage & { hasAnswer?: boolean }) => (
@@ -97,7 +79,6 @@ export const ChatMessages: React.FC<ChatMessagesProps> = ({
               }
             />
           ))}
-          <div ref={messagesEndRef} />
         </div>
 
         {!viewingHistory &&

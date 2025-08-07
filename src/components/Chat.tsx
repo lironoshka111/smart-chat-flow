@@ -1,4 +1,3 @@
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { loadChatService } from "../services/chatService";
 import { useUserStore } from "../stores/userStore";
@@ -16,8 +15,8 @@ interface ChatProps {
   onServiceSelect: (serviceId: string) => void;
 }
 
-export const Chat: React.FC<ChatProps> = ({ serviceId, onServiceSelect }) => {
-  const { user, logout } = useUserStore();
+export const Chat = ({ serviceId, onServiceSelect }: ChatProps) => {
+  const { logout } = useUserStore();
 
   const {
     data: service,
@@ -39,9 +38,8 @@ export const Chat: React.FC<ChatProps> = ({ serviceId, onServiceSelect }) => {
     showSummary,
     chatCancelled,
     editingMessageId,
-    chatHistory,
+
     viewingHistory,
-    searchQuery,
     startChat,
     handleInputChange,
     handleSubmit,
@@ -52,9 +50,7 @@ export const Chat: React.FC<ChatProps> = ({ serviceId, onServiceSelect }) => {
     viewHistory,
     startNewChat,
     handleServiceSelect,
-    setSearchQuery,
   } = useChat({
-    userEmail: user?.email,
     serviceId,
     service,
     onServiceSelect,
@@ -78,13 +74,9 @@ export const Chat: React.FC<ChatProps> = ({ serviceId, onServiceSelect }) => {
   return (
     <div className="flex h-screen bg-gray-50">
       <ChatSidebar
-        chatHistory={chatHistory}
         viewingHistory={viewingHistory}
-        searchQuery={searchQuery}
-        currentServiceId={serviceId}
         onServiceSelect={handleServiceSelect}
         onViewHistory={viewHistory}
-        onSearchChange={setSearchQuery}
       />
 
       <div className="flex-1 flex flex-col">

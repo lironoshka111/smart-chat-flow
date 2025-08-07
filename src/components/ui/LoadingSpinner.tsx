@@ -5,10 +5,10 @@ interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+export const LoadingSpinner = ({
   message = "Loading...",
   size = "md",
-}) => {
+}: LoadingSpinnerProps) => {
   const sizeClasses = {
     sm: "h-6 w-6",
     md: "h-12 w-12",

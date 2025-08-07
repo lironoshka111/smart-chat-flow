@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { useUserStore } from "../stores/userStore";
-import {
-  UserIcon,
-  LockClosedIcon,
-  ExclamationTriangleIcon,
-} from "@heroicons/react/24/outline";
+import { useLocalStorageState, useUpdateEffect } from "ahooks";
 
 interface AuthForm {
   fullName: string;
@@ -14,11 +10,34 @@ interface AuthForm {
 
 const initialForm: AuthForm = { fullName: "", email: "", password: "" };
 
-export const Auth: React.FC = () => {
-  const { user, setUser, logout } = useUserStore();
+export const Auth = () => {
+  const { setUser } = useUserStore();
   const [form, setForm] = useState<AuthForm>(initialForm);
   const [error, setError] = useState<string>("");
   const [mode, setMode] = useState<"login" | "join">("login");
+
+  // Store user data with ahooks localStorage
+  const [userData, setUserData] = useLocalStorageState<
+    Record<
+      string,
+      {
+        fullName: string;
+        email: string;
+        password: string;
+      }
+    >
+  >("user-data", {
+    defaultValue: {},
+    serializer: (value) => JSON.stringify(value),
+    deserializer: (value) => {
+      try {
+        return JSON.parse(value);
+      } catch (error) {
+        console.error("Failed to parse user data:", error);
+        return {};
+      }
+    },
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -41,175 +60,126 @@ export const Auth: React.FC = () => {
     }
     setError("");
     if (mode === "join") {
-      localStorage.setItem(
-        `user-${form.email}`,
-        JSON.stringify({
+      const newUserData = {
+        ...userData,
+        [form.email]: {
           fullName: form.fullName,
           email: form.email,
           password: form.password,
-        }),
-      );
+        },
+      };
+      setUserData(newUserData);
       setUser({ fullName: form.fullName, email: form.email });
     } else {
-      const stored = localStorage.getItem(`user-${form.email}`);
-      if (!stored) {
+      const userInfo = userData[form.email];
+      if (!userInfo) {
         return setError("User not found. Please join first.");
       }
-      const parsed = JSON.parse(stored);
-      if (parsed.password !== form.password) {
+      if (userInfo.password !== form.password) {
         return setError("Incorrect password.");
       }
-      setUser({ fullName: parsed.fullName, email: parsed.email });
+      setUser({ fullName: userInfo.fullName, email: userInfo.email });
     }
     setForm(initialForm);
   };
 
-  if (user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md text-center border border-gray-100">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <UserIcon className="w-8 h-8 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Welcome back, {user.fullName}!
-          </h2>
-          <p className="text-gray-600 mb-6">You're successfully logged in.</p>
-          <button
-            onClick={logout}
-            className="w-full bg-red-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Clear error when form changes
+  useUpdateEffect(() => {
+    setError("");
+  }, [form]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md border border-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LockClosedIcon className="w-8 h-8 text-blue-600" />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {mode === "login" ? "Welcome Back" : "Join Us"}
-          </h2>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Smart Chat Flow
+          </h1>
           <p className="text-gray-600">
-            {mode === "login"
-              ? "Sign in to your account"
-              : "Create your account"}
+            {mode === "login" ? "Welcome back!" : "Join us today!"}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {mode === "join" && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="fullName"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Full Name
               </label>
               <input
                 type="text"
+                id="fullName"
                 name="fullName"
                 value={form.fullName}
                 onChange={handleChange}
-                autoComplete="name"
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter your full name"
               />
             </div>
           )}
+
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Email Address
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Email
             </label>
             <input
               type="email"
+              id="email"
               name="email"
               value={form.email}
               onChange={handleChange}
-              autoComplete="email"
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter your email"
             />
           </div>
+
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Password
             </label>
             <input
               type="password"
+              id="password"
               name="password"
               value={form.password}
               onChange={handleChange}
-              autoComplete={
-                mode === "login" ? "current-password" : "new-password"
-              }
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter your password"
             />
           </div>
+
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
-              <div className="flex items-center justify-center text-red-600">
-                <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
-                {error}
-              </div>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-red-600 text-sm">{error}</p>
             </div>
           )}
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
           >
-            {mode === "login" ? "Sign In" : "Create Account"}
+            {mode === "login" ? "Sign In" : "Join"}
           </button>
         </form>
 
-        <div className="mt-8 text-center">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or</span>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            {mode === "login" ? (
-              <p className="text-gray-600">
-                Don't have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("join");
-                    setError("");
-                  }}
-                  className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
-                >
-                  Create one now
-                </button>
-              </p>
-            ) : (
-              <p className="text-gray-600">
-                Already have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMode("login");
-                    setError("");
-                  }}
-                  className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
-                >
-                  Sign in here
-                </button>
-              </p>
-            )}
-          </div>
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => setMode(mode === "login" ? "join" : "login")}
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+          >
+            {mode === "login"
+              ? "Don't have an account? Join"
+              : "Already have an account? Sign In"}
+          </button>
         </div>
       </div>
     </div>

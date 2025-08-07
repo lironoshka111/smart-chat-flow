@@ -37,3 +37,13 @@ export interface ChatService {
   description: string;
   messages: ChatMessage[];
 }
+
+export interface ChatHistory {
+  id: string;
+  serviceId: string;
+  serviceTitle: string;
+  serviceDescription: string;
+  timestamp: Date;
+  answers: Record<string, string>;
+  firstInput?: string;
+}

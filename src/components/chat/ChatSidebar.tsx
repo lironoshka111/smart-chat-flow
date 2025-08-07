@@ -1,38 +1,35 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { listChatServices } from "../../services/chatService";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-
-interface ChatHistory {
-  id: string;
-  serviceId: string;
-  serviceTitle: string;
-  serviceDescription: string;
-  timestamp: Date;
-  answers: Record<string, string>;
-  firstInput?: string;
-}
+import {
+  MagnifyingGlassIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+} from "@heroicons/react/24/outline";
+import { useDebounce } from "ahooks";
+import { useChatStore } from "../../stores/chatStore";
+import type { ChatHistory } from "../../types/chat";
 
 interface ChatSidebarProps {
-  chatHistory: ChatHistory[];
   viewingHistory: ChatHistory | null;
-  searchQuery: string;
-  currentServiceId: string;
-  onServiceSelect: (_serviceId: string) => void;
-  onViewHistory: (_history: ChatHistory) => void;
-  onSearchChange: (_query: string) => void;
+  onServiceSelect: (serviceId: string) => void;
+  onViewHistory: (history: ChatHistory) => void;
 }
 
-export const ChatSidebar: React.FC<ChatSidebarProps> = ({
-  chatHistory,
+export const ChatSidebar = ({
   viewingHistory,
-  searchQuery,
-  currentServiceId,
   onServiceSelect,
   onViewHistory,
-  onSearchChange,
-}) => {
+}: ChatSidebarProps) => {
   const [searchVisible, setSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [servicesVisible, setServicesVisible] = useState(true);
+
+  // Get data from stores directly - cleaner than prop drilling
+  const { chatHistory, currentServiceId } = useChatStore();
+
+  // Debounce search for better performance
+  const debouncedSearchQuery = useDebounce(searchQuery, { wait: 300 });
 
   const { data: services, isLoading: servicesLoading } = useQuery({
     queryKey: ["chat-services-list"],
@@ -41,15 +38,17 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
     gcTime: Infinity,
   });
 
+  // Simple function - no need for useCallback
   const getHistoryName = (history: ChatHistory) => {
-    if (history.firstInput) {
-      return `${history.serviceTitle} - ${history.firstInput}`;
-    }
-    return history.serviceTitle;
+    return history.firstInput
+      ? `${history.serviceTitle} - ${history.firstInput}`
+      : history.serviceTitle;
   };
 
   const filteredHistory = chatHistory.filter((history) =>
-    getHistoryName(history).toLowerCase().includes(searchQuery.toLowerCase()),
+    getHistoryName(history)
+      .toLowerCase()
+      .includes(debouncedSearchQuery.toLowerCase()),
   );
 
   return (
@@ -60,45 +59,60 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
         </h2>
 
         <div className="mb-4">
-          <p className="text-xs text-gray-600 mb-2 font-medium">
-            Available Services:
-          </p>
-          <div className="space-y-2">
-            {servicesLoading ? (
-              <div className="text-xs text-gray-500">Loading services...</div>
-            ) : (
-              services?.map((service) => (
-                <div
-                  key={service.id}
-                  className={`rounded-lg p-3 transition-all duration-200 cursor-pointer border shadow-sm hover:shadow-md ${
-                    currentServiceId === service.id
-                      ? "bg-blue-100 border-blue-300 shadow-md"
-                      : "bg-white border-gray-200 hover:bg-blue-50 hover:border-blue-300"
-                  }`}
-                  onClick={() => onServiceSelect(service.id)}
-                >
-                  <h4
-                    className={`font-semibold text-sm ${
-                      currentServiceId === service.id
-                        ? "text-blue-900"
-                        : "text-gray-900"
-                    }`}
-                  >
-                    {service.title}
-                  </h4>
-                  <p
-                    className={`text-xs mt-1 leading-relaxed ${
-                      currentServiceId === service.id
-                        ? "text-blue-700"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    {service.description}
-                  </p>
-                </div>
-              ))
-            )}
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-gray-600 font-medium">
+              Available Services
+            </p>
+            <button
+              onClick={() => setServicesVisible(!servicesVisible)}
+              className="p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              title={servicesVisible ? "Hide services" : "Show services"}
+            >
+              {servicesVisible ? (
+                <ChevronUpIcon className="w-4 h-4" />
+              ) : (
+                <ChevronDownIcon className="w-4 h-4" />
+              )}
+            </button>
           </div>
+          {servicesVisible && (
+            <div className="space-y-2">
+              {servicesLoading ? (
+                <div className="text-xs text-gray-500">Loading services...</div>
+              ) : (
+                services?.map((service) => (
+                  <div
+                    key={service.id}
+                    className={`rounded-lg p-3 transition-all duration-200 cursor-pointer border shadow-sm hover:shadow-md ${
+                      currentServiceId === service.id
+                        ? "bg-blue-100 border-blue-300 shadow-md"
+                        : "bg-white border-gray-200 hover:bg-blue-50 hover:border-blue-300"
+                    }`}
+                    onClick={() => onServiceSelect(service.id)}
+                  >
+                    <h4
+                      className={`font-semibold text-sm ${
+                        currentServiceId === service.id
+                          ? "text-blue-900"
+                          : "text-gray-900"
+                      }`}
+                    >
+                      {service.title}
+                    </h4>
+                    <p
+                      className={`text-xs mt-1 leading-relaxed ${
+                        currentServiceId === service.id
+                          ? "text-blue-700"
+                          : "text-gray-600"
+                      }`}
+                    >
+                      {service.description}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -123,10 +137,18 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                 type="text"
                 placeholder="Search chats..."
                 value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-3 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-gray-50"
                 autoFocus
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  ×
+                </button>
+              )}
             </div>
           )}
 
@@ -162,7 +184,9 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
             ))}
             {filteredHistory.length === 0 && (
               <div className="text-center text-gray-500 py-8">
-                {searchQuery ? "No chats found" : "No chat history yet"}
+                {debouncedSearchQuery
+                  ? "No chats found"
+                  : "No chat history yet"}
               </div>
             )}
           </div>

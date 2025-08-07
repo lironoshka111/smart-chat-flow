@@ -7,11 +7,11 @@ interface ErrorMessageProps {
   onRetry?: () => void;
 }
 
-export const ErrorMessage: React.FC<ErrorMessageProps> = ({
+export const ErrorMessage = ({
   title = "Something went wrong",
   message = "An error occurred while loading the content.",
   onRetry,
-}) => {
+}: ErrorMessageProps) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="bg-white rounded-xl shadow-lg p-8 w-96">

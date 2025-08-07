@@ -19,6 +19,7 @@ export const ChatSummaryModal = ({
     <Dialog as="div" className="relative z-50" onClose={onClose}>
       <Transition
         as={Fragment}
+        show={open}
         enter="ease-out duration-300"
         enterFrom="opacity-0"
         enterTo="opacity-100"
@@ -33,6 +34,7 @@ export const ChatSummaryModal = ({
         <div className="flex min-h-full items-center justify-center p-4 text-center">
           <Transition
             as={Fragment}
+            show={open}
             enter="ease-out duration-300"
             enterFrom="opacity-0 scale-95"
             enterTo="opacity-100 scale-100"

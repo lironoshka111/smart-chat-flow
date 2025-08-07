@@ -1,16 +1,14 @@
-import React, { useState } from "react";
 import { useUserStore } from "./stores/userStore";
+import { useChatStore } from "./stores/chatStore";
 import { Auth } from "./components/Auth";
 import { Chat } from "./components/Chat";
 
-const App: React.FC = () => {
+const App = () => {
   const { user } = useUserStore();
-  const [selectedServiceId, setSelectedServiceId] = useState<string>(
-    "employee-onboarding",
-  );
+  const { currentServiceId, setCurrentServiceId } = useChatStore();
 
   const handleServiceSelect = (serviceId: string) => {
-    setSelectedServiceId(serviceId);
+    setCurrentServiceId(serviceId);
   };
 
   if (!user) {
@@ -18,7 +16,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <Chat serviceId={selectedServiceId} onServiceSelect={handleServiceSelect} />
+    <Chat serviceId={currentServiceId} onServiceSelect={handleServiceSelect} />
   );
 };
 

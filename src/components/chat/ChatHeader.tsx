@@ -1,41 +1,4 @@
-import React from "react";
-
-interface ChatHistory {
-  id: string;
-  serviceId: string;
-  serviceTitle: string;
-  serviceDescription: string;
-  timestamp: Date;
-  answers: Record<string, string>;
-  firstInput?: string;
-}
-
-interface ChatMessage {
-  id: string;
-  type: "text" | "input" | "action";
-  content: string;
-  continue?: boolean;
-  inputType?: "text" | "select" | "date";
-  options?: string[];
-  validation?: {
-    required?: boolean;
-    minLength?: number;
-    maxLength?: number;
-    pattern?: string;
-    errorMessage?: string;
-  };
-  actions?: {
-    type: "approve" | "deny";
-    label: string;
-  }[];
-}
-
-interface ChatService {
-  id: string;
-  title: string;
-  description: string;
-  messages: ChatMessage[];
-}
+import type { ChatHistory, ChatService } from "../../types/chat";
 
 interface ChatHeaderProps {
   viewingHistory: ChatHistory | null;
@@ -47,7 +10,7 @@ interface ChatHeaderProps {
   onLogout: () => void;
 }
 
-export const ChatHeader: React.FC<ChatHeaderProps> = ({
+export const ChatHeader = ({
   viewingHistory,
   service,
   chatStarted,
@@ -55,7 +18,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
   chatCancelled,
   onStartNewChat,
   onLogout,
-}) => {
+}: ChatHeaderProps) => {
   return (
     <div className="bg-white shadow-sm border-b border-gray-200">
       <div className="flex items-center justify-between px-6 py-4">
