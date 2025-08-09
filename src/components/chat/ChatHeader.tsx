@@ -1,4 +1,5 @@
 import type { ChatHistory, ChatService } from "../../types/chat";
+import { PlusIcon } from "@heroicons/react/24/outline";
 
 interface ChatHeaderProps {
   viewingHistory: ChatHistory | null;
@@ -41,19 +42,7 @@ export const ChatHeader = ({
               onClick={onStartNewChat}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm hover:shadow-md"
             >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
+              <PlusIcon className="w-4 h-4 mr-2" />
               New Chat
             </button>
           )}

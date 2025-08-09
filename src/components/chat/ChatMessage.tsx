@@ -1,4 +1,5 @@
 import type { ChatMessage as ChatMessageType } from "../../types/chat";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 interface ChatMessageBubbleProps {
   message: ChatMessageType;
@@ -49,7 +50,7 @@ export const ChatMessageBubble = ({
                   className="absolute -top-2 -right-2 bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                   title="Edit answer"
                 >
-                  ✏️
+                  <PencilSquareIcon className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -74,7 +75,7 @@ export const ChatMessageBubble = ({
               className="absolute -top-2 -left-2 bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded-full text-xs font-medium shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
               title="Edit answer"
             >
-              ✏️
+              <PencilSquareIcon className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
