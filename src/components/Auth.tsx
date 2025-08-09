@@ -8,6 +8,7 @@ interface AuthForm {
   password: string;
 }
 
+//     Initial form state
 const initialForm: AuthForm = { fullName: "", email: "", password: "" };
 
 export const Auth = () => {
@@ -95,9 +96,6 @@ export const Auth = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Smart Chat Flow
           </h1>
-          <p className="text-gray-600">
-            {mode === "login" ? "Welcome back!" : "Join us today!"}
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

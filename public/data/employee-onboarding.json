@@ -84,7 +84,17 @@
       "type": "input",
       "content": "Which department will you be working in?",
       "inputType": "select",
-      "options": ["Engineering", "Marketing", "Sales", "HR", "Finance", "Operations", "Support", "Product", "Design"],
+      "options": [
+        "Engineering",
+        "Marketing",
+        "Sales",
+        "HR",
+        "Finance",
+        "Operations",
+        "Support",
+        "Product",
+        "Design"
+      ],
       "validation": {
         "required": true
       }
@@ -119,7 +129,13 @@
       "type": "input",
       "content": "What type of computer do you prefer?",
       "inputType": "select",
-      "options": ["MacBook Pro", "MacBook Air", "Windows Laptop", "Desktop PC", "No preference"],
+      "options": [
+        "MacBook Pro",
+        "MacBook Air",
+        "Windows Laptop",
+        "Desktop PC",
+        "No preference"
+      ],
       "validation": {
         "required": true
       }
@@ -156,4 +172,4 @@
       ]
     }
   ]
-} 
+}

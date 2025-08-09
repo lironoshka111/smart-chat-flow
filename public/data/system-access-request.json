@@ -37,7 +37,15 @@
       "type": "input",
       "content": "Which department do you work in?",
       "inputType": "select",
-      "options": ["Engineering", "Marketing", "Sales", "HR", "Finance", "Operations", "Support"],
+      "options": [
+        "Engineering",
+        "Marketing",
+        "Sales",
+        "HR",
+        "Finance",
+        "Operations",
+        "Support"
+      ],
       "validation": {
         "required": true
       }
@@ -47,7 +55,14 @@
       "type": "input",
       "content": "Which system do you need access to?",
       "inputType": "select",
-      "options": ["CRM System", "HR Portal", "Financial Dashboard", "Development Tools", "Support Portal", "Marketing Platform"],
+      "options": [
+        "CRM System",
+        "HR Portal",
+        "Financial Dashboard",
+        "Development Tools",
+        "Support Portal",
+        "Marketing Platform"
+      ],
       "validation": {
         "required": true
       }

@@ -1,5 +1,10 @@
 # Frontend Developer Exam
 
+## Setup
+
+Required Node.js version:
+This project uses packages that require Node.js ≥ 20.19.0
+
 ## Overview
 
 In this exam, you will implement a ChatGPT-like UI with rich chat messages for different company services.

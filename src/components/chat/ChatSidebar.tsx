@@ -48,7 +48,7 @@ export const ChatSidebar = ({
   const filteredHistory = chatHistory.filter((history) =>
     getHistoryName(history)
       .toLowerCase()
-      .includes(debouncedSearchQuery.toLowerCase())
+      .includes(debouncedSearchQuery.toLowerCase()),
   );
 
   return (

@@ -92,10 +92,14 @@ export const useChat = ({
   };
 
   const handleServiceSelect = (newServiceId: string) => {
-    if (viewingHistory && viewingHistory.serviceId !== newServiceId) {
+    // Always exit history view when selecting any service
+    // This ensures users see the start chat screen
+    if (viewingHistory) {
       exitHistoryView();
     }
     resetChat();
+    // Clear persisted state to ensure fresh start
+    clearPersistedState();
     onServiceSelect(newServiceId);
   };
 

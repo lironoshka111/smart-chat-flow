@@ -112,7 +112,7 @@ describe("chatValidation", () => {
         const message = createMessage({ pattern: emailPattern });
 
         expect(validateChatInput(message, "invalid-email")).toBe(
-          "Invalid format."
+          "Invalid format.",
         );
         expect(validateChatInput(message, "valid@example.com")).toBe("");
       });

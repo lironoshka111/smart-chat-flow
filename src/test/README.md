@@ -64,10 +64,13 @@ src/
 
 ```bash
 # Run all tests once
-npm run test
+npm test
 
-# Run tests in watch mode
-npm run test:watch
+# Run tests in watch mode (default)
+npm test
+
+# Run tests once and exit
+npm test --run
 
 # Run tests with coverage
 npm run test:coverage

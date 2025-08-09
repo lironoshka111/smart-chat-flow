@@ -3,11 +3,10 @@ module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
-    "./public/index.html"
+    "./public/index.html",
   ],
   theme: {
     extend: {},
   },
-  plugins: [require('@headlessui/tailwindcss'), require('@tailwindcss/forms')],
+  plugins: [require("@headlessui/tailwindcss"), require("@tailwindcss/forms")],
 };
-  

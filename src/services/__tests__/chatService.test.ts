@@ -28,7 +28,7 @@ describe("chatService", () => {
       mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
       await expect(loadChatService("test-service")).rejects.toThrow(
-        "Network error"
+        "Network error",
       );
       expect(mockFetch).toHaveBeenCalledWith("/data/test-service.json");
     });
@@ -40,7 +40,7 @@ describe("chatService", () => {
       });
 
       await expect(loadChatService("non-existent")).rejects.toThrow(
-        "Failed to load service: Not Found"
+        "Failed to load service: Not Found",
       );
       expect(mockFetch).toHaveBeenCalledWith("/data/non-existent.json");
     });
@@ -60,7 +60,7 @@ describe("chatService", () => {
         });
 
         await expect(loadChatService("test")).rejects.toThrow(
-          `Failed to load service: ${statusText}`
+          `Failed to load service: ${statusText}`,
         );
       }
     });
@@ -72,7 +72,7 @@ describe("chatService", () => {
       });
 
       await expect(loadChatService("test-service")).rejects.toThrow(
-        "Invalid JSON"
+        "Invalid JSON",
       );
     });
 
@@ -95,7 +95,7 @@ describe("chatService", () => {
       await loadChatService("test-service-with-special-chars_123");
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "/data/test-service-with-special-chars_123.json"
+        "/data/test-service-with-special-chars_123.json",
       );
     });
 
@@ -153,15 +153,15 @@ describe("chatService", () => {
       expect(mockFetch).toHaveBeenCalledTimes(3);
       expect(mockFetch).toHaveBeenNthCalledWith(
         1,
-        "/data/employee-onboarding.json"
+        "/data/employee-onboarding.json",
       );
       expect(mockFetch).toHaveBeenNthCalledWith(
         2,
-        "/data/feature-request.json"
+        "/data/feature-request.json",
       );
       expect(mockFetch).toHaveBeenNthCalledWith(
         3,
-        "/data/system-access-request.json"
+        "/data/system-access-request.json",
       );
 
       expect(result).toHaveLength(3);
@@ -223,7 +223,7 @@ describe("chatService", () => {
       expect(result[1].id).toBe("system-access-request");
       expect(consoleSpy).toHaveBeenCalledWith(
         "Failed to load service feature-request:",
-        expect.any(Error)
+        expect.any(Error),
       );
 
       consoleSpy.mockRestore();

@@ -4,7 +4,7 @@ import { render, type RenderOptions } from "@testing-library/react";
 // Custom render function that wraps components for testing
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, "wrapper">
+  options?: Omit<RenderOptions, "wrapper">,
 ) => {
   // Simple wrapper that just returns children (no providers needed for basic tests)
   const Wrapper = ({ children }: { children: React.ReactNode }) => (
