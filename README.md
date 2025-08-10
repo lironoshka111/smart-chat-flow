@@ -2,8 +2,90 @@
 
 ## Setup
 
+### Prerequisites
+
 Required Node.js version:
 This project uses packages that require Node.js ≥ 20.19.0
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd smart-chat-flow
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Generate manifest (if needed)**
+
+   ```bash
+   npm run generate-manifest
+   ```
+
+4. **Start development server**
+
+   ```bash
+   npm run dev
+   ```
+
+   The application will be available at `http://localhost:5173`
+
+### Available Scripts
+
+#### Development
+
+- `npm run dev` - Start the development server with hot reload
+- `npm run build` - Build the application for production
+- `npm run preview` - Preview the production build locally
+
+#### Testing
+
+- `npm test` - Run all tests once
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:ui` - Run tests with Vitest UI interface
+
+#### Code Quality
+
+- `npm run lint` - Check code for linting errors
+- `npm run lint:fix` - Automatically fix linting errors
+
+#### Utilities
+
+- `npm run generate-manifest` - Generate application manifest
+
+### Technology Stack
+
+- **Frontend**: React 19 with TypeScript
+- **Styling**: Tailwind CSS 4
+- **Build Tool**: Vite 7
+- **State Management**: Zustand
+- **Testing**: Vitest with React Testing Library
+- **Icons**: Heroicons
+- **UI Components**: Headless UI
+- **Security**: bcryptjs for password hashing
+
+### Project Structure
+
+```
+src/
+├── components/           # Reusable UI components
+│   ├── chat/            # Chat-specific components
+│   │   ├── __test__/    # Component tests
+│   │   └── hooks/       # Chat-related hooks
+│   ├── ui/              # Generic UI components
+│   └── __test__/        # Component tests
+├── services/            # API and business logic
+├── stores/              # Zustand state management
+├── types/               # TypeScript type definitions
+├── utils/               # Utility functions
+└── test/               # Test configuration
+```
 
 ## Overview
 
