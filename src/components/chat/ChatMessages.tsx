@@ -24,7 +24,6 @@ export const ChatMessages = ({
   onStartEdit,
   canEdit = false,
 }: ChatMessagesProps) => {
-  // Simple helper - no need for useCallback
   const getAnswer = (messageId: string): string | undefined => {
     return viewingHistory
       ? viewingHistory.answers[messageId]
@@ -42,7 +41,6 @@ export const ChatMessages = ({
       }));
     }
 
-    // For active chat, show messages up to current index
     return service.messages.slice(0, current + 1);
   };
 

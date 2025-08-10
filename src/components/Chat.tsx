@@ -4,7 +4,6 @@ import { listChatServices } from "../services/chatService";
 import { useChatStore } from "../stores/chatStore";
 import { useChatFlow } from "./chat/hooks/useChatFlow";
 import { useChatHistory } from "./chat/hooks/useChatHistory";
-import { chatActions } from "../stores/chatUIStore";
 
 import { ChatHeader } from "./chat/ChatHeader";
 import { ChatMessages } from "./chat/ChatMessages";
@@ -58,6 +57,10 @@ export const Chat = () => {
     chatStarted,
     chatCancelled,
     editingMessageId,
+
+    resetChat,
+    setShowSummary,
+    setInput,
   } = useChatFlow();
 
   // 3) History
@@ -68,11 +71,8 @@ export const Chat = () => {
     [viewingHistory, service, current],
   );
 
-  // Handlers (stable: call chatActions directly)
-  const handleInputChange = chatActions.setInput;
-
   const handleCloseSummary = () => {
-    chatActions.setShowSummary(false);
+    setShowSummary(false);
     if (!viewingHistory && service) {
       saveToHistory(service.id, service.title, service.description, answers);
     }
@@ -80,7 +80,7 @@ export const Chat = () => {
 
   const startNewChat = () => {
     exitHistoryView();
-    chatActions.reset();
+    resetChat();
   };
 
   const handleServiceSelect = (serviceId: string) => {
@@ -144,7 +144,7 @@ export const Chat = () => {
             input={input}
             inputError={inputError}
             editingMessageId={editingMessageId}
-            onInputChange={handleInputChange}
+            onInputChange={setInput}
             onInputSubmit={handleSubmit}
             onAction={handleAction}
             onCancelEdit={cancelEdit}
