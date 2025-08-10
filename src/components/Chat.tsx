@@ -12,7 +12,6 @@ import { LoadingSpinner } from "./ui/LoadingSpinner";
 import { ErrorMessage } from "./ui/ErrorMessage";
 
 export const Chat = () => {
-  const { logout } = useUserStore();
   const { currentServiceId: serviceId } = useChatStore();
 
   const {
@@ -83,7 +82,6 @@ export const Chat = () => {
           showSummary={showSummary}
           chatCancelled={chatCancelled}
           onStartNewChat={startNewChat}
-          onLogout={logout}
         />
 
         <ChatMessages

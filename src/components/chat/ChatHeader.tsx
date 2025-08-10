@@ -1,3 +1,4 @@
+import { useUserStore } from "../../stores/userStore";
 import type { ChatHistory, ChatService } from "../../types/chat";
 import { PlusIcon } from "@heroicons/react/24/outline";
 
@@ -8,7 +9,6 @@ interface ChatHeaderProps {
   showSummary: boolean;
   chatCancelled: boolean;
   onStartNewChat: () => void;
-  onLogout: () => void;
 }
 
 export const ChatHeader = ({
@@ -18,8 +18,9 @@ export const ChatHeader = ({
   showSummary,
   chatCancelled,
   onStartNewChat,
-  onLogout,
 }: ChatHeaderProps) => {
+  const { logout } = useUserStore();
+
   return (
     <div className="bg-white shadow-sm border-b border-gray-200">
       <div className="flex items-center justify-between px-6 py-4">
@@ -48,7 +49,7 @@ export const ChatHeader = ({
           )}
         </div>
         <button
-          onClick={onLogout}
+          onClick={logout}
           className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
         >
           Logout
