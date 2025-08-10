@@ -11,26 +11,9 @@ export const loadChatService = async (
 };
 
 export const listChatServices = async (): Promise<ChatService[]> => {
-  const services = [
-    "employee-onboarding",
-    "feature-request",
-    "system-access-request",
-  ];
-
-  const servicePromises = services.map(async (serviceId) => {
-    try {
-      const service = await loadChatService(serviceId);
-      return {
-        id: service.id,
-        title: service.title,
-        description: service.description,
-      };
-    } catch (error) {
-      console.error(`Failed to load service ${serviceId}:`, error);
-      return null;
-    }
-  });
-
-  const results = await Promise.all(servicePromises);
-  return results.filter((result): result is ChatService => result !== null);
+  const response = await fetch("/data/index.json");
+  if (!response.ok) {
+    throw new Error(`Failed to load services: ${response.statusText}`);
+  }
+  return response.json();
 };

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "employee-onboarding",
+    "title": "Employee Onboarding",
+    "description": "Complete your employee onboarding process",
+    "file": "employee-onboarding.json"
+  },
+  {
+    "id": "feature-request",
+    "title": "Feature Request",
+    "description": "Submit a new feature request for our product",
+    "file": "feature-request.json"
+  },
+  {
+    "id": "system-access-request",
+    "title": "System Access Request",
+    "description": "Request access to internal systems and applications",
+    "file": "system-access-request.json"
+  }
+]

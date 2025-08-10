@@ -1,80 +1,84 @@
-import { useUpdateEffect } from "ahooks";
-import type {
-  ChatService,
-  ChatMessage,
-  ChatHistory,
-} from "../../../types/chat";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { loadChatService } from "../../../services/chatService";
+import { useChatStore } from "../../../stores/chatStore";
 import {
   validateChatInput,
   getNextMessageIndex,
 } from "../../../utils/chatValidation";
+import type { ChatMessage, ChatService } from "../../../types/chat";
 
-/**
- * Manages chat flow - much simpler with state object
- */
-export const useChatFlow = (
-  service: ChatService | null,
-  chatState: {
-    current: number;
-    input: string;
-    editingMessageId: string | null;
-    chatStarted: boolean;
-    viewingHistory: ChatHistory | null;
-  },
-  actions: {
-    setCurrent: (current: number) => void;
-    setAnswers: (
-      fn: (prev: Record<string, string>) => Record<string, string>,
-    ) => void;
-    setInput: (input: string) => void;
-    setInputError: (error: string) => void;
-    setChatStarted: (started: boolean) => void;
-    setShowSummary: (show: boolean) => void;
-    setChatCancelled: (cancelled: boolean) => void;
-    setEditingMessageId: (id: string | null) => void;
-  },
-) => {
-  const { current, input, editingMessageId, chatStarted, viewingHistory } =
-    chatState;
+export function useChatFlow() {
+  const currentServiceId = useChatStore((s) => s.currentServiceId);
+
   const {
-    setCurrent,
-    setAnswers,
-    setInput,
-    setInputError,
-    setChatStarted,
-    setShowSummary,
-    setChatCancelled,
-    setEditingMessageId,
-  } = actions;
+    data: service,
+    isLoading: serviceLoading,
+    isError: serviceError,
+    error,
+  } = useQuery<ChatService>({
+    queryKey: ["chat-service", currentServiceId],
+    queryFn: () => loadChatService(currentServiceId as string),
+    enabled: Boolean(currentServiceId),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
 
-  // Auto-advance continue messages
-  useUpdateEffect(() => {
-    if (!chatStarted || viewingHistory || !service) return;
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [current, setCurrent] = useState(0);
+  const [input, setInput] = useState("");
+  const [inputError, setInputError] = useState("");
+  const [chatStarted, setChatStarted] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [chatCancelled, setChatCancelled] = useState(false);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
 
-    const currentMsg = service.messages[current];
-    if (!currentMsg?.continue) return;
+  useEffect(() => {
+    if (!service || !chatStarted) return;
+    const msg = service.messages[current];
+    if (!msg?.continue) return;
 
-    const timer = setTimeout(() => {
+    const t = setTimeout(() => {
       setCurrent(getNextMessageIndex(service.messages, current));
     }, 1000);
+    return () => clearTimeout(t);
+  }, [service, chatStarted, current]);
 
-    return () => clearTimeout(timer);
-  }, [chatStarted, viewingHistory, current, service]);
+  const currentMsg = useMemo<ChatMessage | null>(() => {
+    if (!service) return null;
+    return service.messages[current] ?? null;
+  }, [service, current]);
 
-  const startChat = () => {
+  // Actions
+  const startChat = useCallback(() => {
     setChatStarted(true);
-    setCurrent(1); // Start with first message after welcome
-  };
+    setCurrent(1);
+  }, []);
 
-  const handleSubmit = () => {
+  const startEditing = useCallback(
+    (messageId: string, currentValue: string) => {
+      setEditingMessageId(messageId);
+      setInput(currentValue);
+    },
+    [],
+  );
+
+  const cancelEdit = useCallback(() => {
+    setEditingMessageId(null);
+    setInput("");
+  }, []);
+
+  const handleSubmit = useCallback(() => {
     if (!service) return;
 
+    // Edit mode
     if (editingMessageId) {
-      if (input.trim()) {
+      const value = input.trim();
+      if (value) {
         const editIdx = service.messages.findIndex(
-          (m: ChatMessage) => m.id === editingMessageId,
+          (m) => m.id === editingMessageId,
         );
-        setAnswers((prev) => ({ ...prev, [editingMessageId]: input }));
+        setAnswers((prev) => ({ ...prev, [editingMessageId]: value }));
         setCurrent(editIdx + 1);
         setEditingMessageId(null);
         setInput("");
@@ -83,68 +87,84 @@ export const useChatFlow = (
       return;
     }
 
-    const currentMsg = service.messages[current];
-    if (!currentMsg || currentMsg.type !== "input") return;
+    const msg = service.messages[current];
+    if (!msg || msg.type !== "input") return;
 
-    const error = validateChatInput(currentMsg, input);
-    if (error) {
-      setInputError(error);
+    const err = validateChatInput(msg, input);
+    if (err) {
+      setInputError(err);
       return;
     }
 
-    setAnswers((prev) => ({ ...prev, [currentMsg.id]: input }));
+    setAnswers((prev) => ({ ...prev, [msg.id]: input }));
     setInput("");
     setInputError("");
+    setCurrent(getNextMessageIndex(service.messages, current));
+  }, [service, editingMessageId, input, current]);
 
-    const nextIndex = getNextMessageIndex(service.messages, current);
-    setCurrent(nextIndex);
-  };
+  const handleAction = useCallback(
+    (label: string) => {
+      if (!service) return;
 
-  const handleAction = (label: string) => {
-    if (!service) return;
+      const msg = service.messages[current];
+      if (!msg || msg.type !== "action") return;
 
-    const currentMsg = service.messages[current];
-    if (!currentMsg || currentMsg.type !== "action") return;
+      const selected = msg.actions?.find((a) => a.label === label);
+      if (selected?.type === "deny") {
+        setChatCancelled(true);
+        setInput("");
+        setInputError("");
+        return;
+      }
 
-    // Find the action that was selected
-    const selectedAction = currentMsg.actions?.find(
-      (action) => action.label === label,
-    );
+      setAnswers((prev) => ({ ...prev, [msg.id]: label }));
+      const nextIndex = getNextMessageIndex(service.messages, current);
+      setCurrent(nextIndex);
 
-    // If it's a deny action, cancel the chat
-    if (selectedAction?.type === "deny") {
-      setChatCancelled(true);
-      setInput("");
-      setInputError("");
-      return;
-    }
+      if (nextIndex >= service.messages.length) {
+        setShowSummary(true);
+      }
+    },
+    [service, current],
+  );
 
-    // For approve actions, continue with normal flow
-    setAnswers((prev) => ({ ...prev, [currentMsg.id]: label }));
-    const nextIndex = getNextMessageIndex(service.messages, current);
-    setCurrent(nextIndex);
-
-    // Check if we've reached the end
-    if (nextIndex >= service.messages.length) {
-      setShowSummary(true);
-    }
-  };
-
-  const startEditing = (messageId: string, currentValue: string) => {
-    setEditingMessageId(messageId);
-    setInput(currentValue);
-  };
-
-  const cancelEdit = () => {
-    setEditingMessageId(null);
+  const resetChat = useCallback(() => {
+    setAnswers({});
+    setCurrent(0);
     setInput("");
-  };
+    setInputError("");
+    setChatStarted(false);
+    setShowSummary(false);
+    setChatCancelled(false);
+    setEditingMessageId(null);
+  }, []);
 
   return {
+    // service
+    service,
+    serviceLoading,
+    serviceError,
+    serviceErrorObject: error as Error | undefined,
+
+    // state
+    answers,
+    current,
+    input,
+    inputError,
+    chatStarted,
+    showSummary,
+    chatCancelled,
+    editingMessageId,
+    currentMsg,
+
+    // actions
     startChat,
-    handleSubmit,
-    handleAction,
     startEditing,
     cancelEdit,
+    handleSubmit,
+    handleAction,
+    resetChat,
+    setInput,
+    setShowSummary,
   };
-};
+}

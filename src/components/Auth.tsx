@@ -1,90 +1,107 @@
-import React, { useState } from "react";
+// src/components/Auth.tsx
+import { useEffect, useState } from "react";
 import { useUserStore } from "../stores/userStore";
 import { useLocalStorageState, useUpdateEffect } from "ahooks";
+import bcrypt from "bcryptjs";
 
-interface AuthForm {
+export interface AuthForm {
   fullName: string;
   email: string;
   password: string;
 }
 
-//     Initial form state
+export type StoredUser = {
+  fullName: string;
+  email: string;
+  passwordHash: string; // bcrypt hash (NO plaintext password)
+};
+
 const initialForm: AuthForm = { fullName: "", email: "", password: "" };
 
 export const Auth = () => {
-  const { setUser } = useUserStore();
+  const setUser = useUserStore((s) => s.setUser); // persists only { fullName, email }
   const [form, setForm] = useState<AuthForm>(initialForm);
   const [error, setError] = useState<string>("");
+  const [busy, setBusy] = useState(false);
   const [mode, setMode] = useState<"login" | "join">("login");
 
-  // Store user data with ahooks localStorage
+  useEffect(() => {
+    setError("");
+  }, [mode]);
+
   const [userData, setUserData] = useLocalStorageState<
-    Record<
-      string,
-      {
-        fullName: string;
-        email: string;
-        password: string;
-      }
-    >
+    Record<string, StoredUser>
   >("user-data", {
     defaultValue: {},
-    serializer: (value) => JSON.stringify(value),
+    serializer: JSON.stringify,
     deserializer: (value) => {
       try {
-        return JSON.parse(value);
-      } catch (error) {
-        console.error("Failed to parse user data:", error);
+        const parsed = JSON.parse(value) as Record<string, StoredUser>;
+        return (parsed || {}) as Record<string, StoredUser>;
+      } catch {
         return {};
       }
     },
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const validate = () => {
-    if (!form.fullName.trim() && mode === "join") return "Full name required.";
-    if (!form.email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/))
-      return "Invalid email.";
+    if (mode === "join" && !form.fullName.trim()) return "Full name required.";
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) return "Invalid email.";
     if (form.password.length < 6)
       return "Password must be at least 6 characters.";
     return "";
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const err = validate();
-    if (err) {
-      return setError(err);
-    }
+    if (err) return setError(err);
+
     setError("");
-    if (mode === "join") {
-      const newUserData = {
-        ...userData,
-        [form.email]: {
-          fullName: form.fullName,
-          email: form.email,
-          password: form.password,
-        },
-      };
-      setUserData(newUserData);
-      setUser({ fullName: form.fullName, email: form.email });
-    } else {
-      const userInfo = userData[form.email];
-      if (!userInfo) {
-        return setError("User not found. Please join first.");
+    setBusy(true);
+    try {
+      if (mode === "join") {
+        if (userData && userData[form.email]) {
+          throw new Error("User already exists.");
+        }
+        // Hash password with bcryptjs (async)
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(form.password, salt);
+
+        const next: Record<string, StoredUser> = {
+          ...(userData || {}),
+          [form.email]: {
+            fullName: form.fullName,
+            email: form.email,
+            passwordHash,
+          },
+        };
+        setUserData(next);
+        setUser({ fullName: form.fullName, email: form.email });
+      } else {
+        const userInfo = userData?.[form.email];
+        if (!userInfo) throw new Error("User not found. Please join first.");
+
+        const ok = await bcrypt.compare(form.password, userInfo.passwordHash);
+        if (!ok) throw new Error("Incorrect password.");
+
+        setUser({ fullName: userInfo.fullName, email: userInfo.email });
       }
-      if (userInfo.password !== form.password) {
-        return setError("Incorrect password.");
-      }
-      setUser({ fullName: userInfo.fullName, email: userInfo.email });
+
+      setForm(initialForm);
+    } catch (e) {
+      console.log("err", e);
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
     }
-    setForm(initialForm);
   };
 
-  // Clear error when form changes
+  // Clear error when typing
   useUpdateEffect(() => {
     setError("");
   }, [form]);
@@ -96,9 +113,12 @@ export const Auth = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Smart Chat Flow
           </h1>
+          <p className="text-gray-500 text-sm">
+            {mode === "login" ? "Sign in to continue" : "Create an account"}
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form noValidate onSubmit={handleSubmit} className="space-y-6">
           {mode === "join" && (
             <div>
               <label
@@ -108,13 +128,13 @@ export const Auth = () => {
                 Full Name
               </label>
               <input
-                type="text"
                 id="fullName"
                 name="fullName"
                 value={form.fullName}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter your full name"
+                autoComplete="name"
               />
             </div>
           )}
@@ -127,13 +147,14 @@ export const Auth = () => {
               Email
             </label>
             <input
-              type="email"
               id="email"
               name="email"
+              type="email"
               value={form.email}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter your email"
+              autoComplete="email"
             />
           </div>
 
@@ -145,13 +166,16 @@ export const Auth = () => {
               Password
             </label>
             <input
-              type="password"
               id="password"
               name="password"
+              type="password"
               value={form.password}
               onChange={handleChange}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter your password"
+              autoComplete={
+                mode === "login" ? "current-password" : "new-password"
+              }
             />
           </div>
 
@@ -163,16 +187,18 @@ export const Auth = () => {
 
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+            disabled={busy}
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-60"
           >
-            {mode === "login" ? "Sign In" : "Join"}
+            {busy ? "Please wait..." : mode === "login" ? "Sign In" : "Join"}
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <button
-            onClick={() => setMode(mode === "login" ? "join" : "login")}
+            onClick={() => setMode((m) => (m === "login" ? "join" : "login"))}
             className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors"
+            type="button"
           >
             {mode === "login"
               ? "Don't have an account? Join"

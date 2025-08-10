@@ -1,25 +1,24 @@
-import type { ChatHistory, ChatService } from "../../types/chat";
+import { useUserStore } from "../../stores/userStore";
+import type { ChatService } from "../../types/chat";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { useChatHistory } from "./hooks/useChatHistory";
 
 interface ChatHeaderProps {
-  viewingHistory: ChatHistory | null;
   service: ChatService | null;
   chatStarted: boolean;
-  showSummary: boolean;
   chatCancelled: boolean;
   onStartNewChat: () => void;
-  onLogout: () => void;
 }
 
 export const ChatHeader = ({
-  viewingHistory,
   service,
   chatStarted,
-  showSummary,
   chatCancelled,
   onStartNewChat,
-  onLogout,
 }: ChatHeaderProps) => {
+  const { logout, user } = useUserStore();
+  const { viewingHistory } = useChatHistory();
+
   return (
     <div className="bg-white shadow-sm border-b border-gray-200">
       <div className="flex items-center justify-between px-6 py-4">
@@ -36,7 +35,7 @@ export const ChatHeader = ({
               </p>
             )}
           </div>
-          {!viewingHistory && (chatStarted || showSummary || chatCancelled) && (
+          {!viewingHistory && (chatStarted || chatCancelled) && (
             <button
               data-testid="new-chat-button"
               onClick={onStartNewChat}
@@ -47,12 +46,20 @@ export const ChatHeader = ({
             </button>
           )}
         </div>
-        <button
-          onClick={onLogout}
-          className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-        >
-          Logout
-        </button>
+
+        <div className="flex items-center space-x-4">
+          {user?.fullName && (
+            <span className="text-gray-700 font-medium">
+              Hello, {user.fullName}
+            </span>
+          )}
+          <button
+            onClick={logout}
+            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </div>
   );

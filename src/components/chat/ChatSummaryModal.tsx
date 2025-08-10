@@ -1,8 +1,13 @@
-import { Dialog, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+} from "@headlessui/react";
 import type { ChatMessage } from "../../types/chat";
 import { Fragment } from "react";
 
-interface ChatSummaryModalProps {
+export interface ChatSummaryModalProps {
   open: boolean;
   onClose: () => void;
   messages: ChatMessage[];
@@ -42,13 +47,13 @@ export const ChatSummaryModal = ({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <Dialog.Panel className="w-full max-w-2xl max-h-[90vh] transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all flex flex-col">
-              <Dialog.Title
+            <DialogPanel className="w-full max-w-2xl max-h-[90vh] transform overflow-hidden rounded-2xl bg-white text-left align-middle shadow-xl transition-all flex flex-col">
+              <DialogTitle
                 as="h3"
                 className="text-lg font-medium leading-6 text-gray-900 p-6 pb-4 border-b border-gray-200"
               >
                 Chat Summary
-              </Dialog.Title>
+              </DialogTitle>
               <div className="flex-1 overflow-y-auto p-6">
                 <div className="space-y-4">
                   {messages
@@ -81,7 +86,7 @@ export const ChatSummaryModal = ({
                   Close
                 </button>
               </div>
-            </Dialog.Panel>
+            </DialogPanel>
           </Transition>
         </div>
       </div>

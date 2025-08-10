@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { ChatMessageBubble } from "./ChatMessage";
 import type { ChatMessage, ChatService, ChatHistory } from "../../types/chat";
-import { useScroll } from "./hooks/useScroll";
+import { useScroll } from "../hooks/useScroll";
 
-interface ChatMessagesProps {
+export interface ChatMessagesProps {
   answers: Record<string, string>;
   viewingHistory: ChatHistory | null;
   chatStarted: boolean;
@@ -24,7 +24,6 @@ export const ChatMessages = ({
   onStartEdit,
   canEdit = false,
 }: ChatMessagesProps) => {
-  // Simple helper - no need for useCallback
   const getAnswer = (messageId: string): string | undefined => {
     return viewingHistory
       ? viewingHistory.answers[messageId]
@@ -42,7 +41,6 @@ export const ChatMessages = ({
       }));
     }
 
-    // For active chat, show messages up to current index
     return service.messages.slice(0, current + 1);
   };
 

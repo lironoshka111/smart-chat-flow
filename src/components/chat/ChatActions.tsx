@@ -1,6 +1,6 @@
 import type { ChatMessage } from "../../types/chat";
 
-interface ChatActionsProps {
+export interface ChatActionsProps {
   message: ChatMessage;
   onAction: (label: string) => void;
 }

@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "generate-manifest": "node scripts/generate-manifest.mjs",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest run",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage",
     "test:watch": "vitest --watch",
     "lint": "eslint . ",
     "lint:fix": "eslint . --fix"
@@ -22,6 +22,7 @@
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.84.1",
     "ahooks": "^3.9.0",
+    "bcryptjs": "^3.0.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.7.1",
@@ -31,14 +32,16 @@
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^24.2.1",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
     "@vitejs/plugin-react": "^4.6.0",
-    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/mocker": "^3.2.4",
     "eslint": "^9.32.0",
     "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-react-hooks": "^5.2.0",
@@ -49,6 +52,6 @@
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.0",
     "vite": "^7.0.4",
-    "vitest": "^2.1.8"
+    "vitest": "^3.2.4"
   }
 }
