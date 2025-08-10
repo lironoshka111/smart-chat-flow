@@ -298,7 +298,7 @@ describe("ChatSidebar", () => {
 
       // Check for date formatting (will depend on locale)
       expect(screen.getByText(/01\/01\/2024/)).toBeInTheDocument();
-      expect(screen.getByText(/02\/01\/2024/)).toBeInTheDocument();
+      expect(screen.getByText(/01\/02\/2024/)).toBeInTheDocument();
     });
 
     it("should call onViewHistory when history item is clicked", async () => {

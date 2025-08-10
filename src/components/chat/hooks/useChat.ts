@@ -1,4 +1,5 @@
 import type { ChatService, ChatHistory } from "../../../types/chat";
+import { useChatStore } from "../../../stores/chatStore";
 
 // Focused hooks
 import { useChatState } from "./useChatState";
@@ -7,20 +8,15 @@ import { useChatFlow } from "./useChatFlow";
 import { useChatPersistence } from "./useChatPersistence";
 
 interface UseChatProps {
-  serviceId: string;
   service?: ChatService;
-  onServiceSelect: (serviceId: string) => void;
 }
 
 /**
  * Main chat hook - orchestrates smaller focused hooks
  * Now much cleaner and easier to understand!
  */
-export const useChat = ({
-  serviceId,
-  service,
-  onServiceSelect,
-}: UseChatProps) => {
+export const useChat = ({ service }: UseChatProps) => {
+  const { currentServiceId: serviceId, setCurrentServiceId } = useChatStore();
   // Core chat state management
   const {
     answers,
@@ -50,7 +46,7 @@ export const useChat = ({
     viewHistory,
     exitHistoryView,
     saveToHistory,
-  } = useChatHistory(onServiceSelect);
+  } = useChatHistory();
 
   // Chat flow (start, submit, actions, editing)
   const { startChat, handleSubmit, handleAction, startEditing, cancelEdit } =
@@ -71,7 +67,6 @@ export const useChat = ({
 
   // Persistence
   const { clearPersistedState } = useChatPersistence(
-    serviceId,
     { current, answers, chatStarted },
     { setCurrent, setAnswers, setChatStarted },
   );
@@ -92,15 +87,11 @@ export const useChat = ({
   };
 
   const handleServiceSelect = (newServiceId: string) => {
-    // Always exit history view when selecting any service
-    // This ensures users see the start chat screen
-    if (viewingHistory) {
-      exitHistoryView();
-    }
+    // Exit history view and reset chat state when switching services
+    exitHistoryView();
     resetChat();
-    // Clear persisted state to ensure fresh start
     clearPersistedState();
-    onServiceSelect(newServiceId);
+    setCurrentServiceId(newServiceId);
   };
 
   return {

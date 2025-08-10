@@ -36,8 +36,6 @@ describe("useChat Integration Tests", () => {
     firstInput: "John Doe",
   };
 
-  const mockOnServiceSelect = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -46,44 +44,35 @@ describe("useChat Integration Tests", () => {
     it("should reset chat state and exit history view when selecting different service", () => {
       const { result } = renderHook(() =>
         useChat({
-          serviceId: "employee-onboarding",
           service: mockService,
-          onServiceSelect: mockOnServiceSelect,
         }),
       );
 
       // First, simulate viewing a chat history
       act(() => {
-        result.current.viewHistory(mockChatHistory, "employee-onboarding");
+        result.current.viewHistory(mockChatHistory);
       });
 
       // Verify we're viewing history
       expect(result.current.viewingHistory).toBe(mockChatHistory);
 
-      // Now simulate clicking on a different service
+      // Now simulate selecting a different service
       act(() => {
         result.current.handleServiceSelect("feature-request");
       });
 
-      // Should exit history view
+      // Should reset chat state and exit history view
       expect(result.current.viewingHistory).toBe(null);
-
-      // Should reset chat state
       expect(result.current.chatStarted).toBe(false);
       expect(result.current.current).toBe(0);
       expect(result.current.answers).toEqual({});
       expect(result.current.input).toBe("");
-
-      // Should call onServiceSelect with new service
-      expect(mockOnServiceSelect).toHaveBeenCalledWith("feature-request");
     });
 
     it("should reset chat state and exit history view when selecting same service while viewing history", () => {
       const { result } = renderHook(() =>
         useChat({
-          serviceId: "employee-onboarding",
           service: mockService,
-          onServiceSelect: mockOnServiceSelect,
         }),
       );
 
@@ -97,16 +86,16 @@ describe("useChat Integration Tests", () => {
 
       // Simulate viewing a chat history
       act(() => {
-        result.current.viewHistory(mockChatHistory, "employee-onboarding");
+        result.current.viewHistory(mockChatHistory);
       });
 
       // Verify we're viewing history
       expect(result.current.viewingHistory).toBe(mockChatHistory);
 
-      // Now simulate clicking on the SAME service while viewing history
+      // Now simulate starting a new chat while viewing history
       // This should reset to start chat screen
       act(() => {
-        result.current.handleServiceSelect("employee-onboarding");
+        result.current.startNewChat();
       });
 
       // Should exit history view
@@ -117,23 +106,18 @@ describe("useChat Integration Tests", () => {
       expect(result.current.current).toBe(0);
       expect(result.current.answers).toEqual({});
       expect(result.current.input).toBe("");
-
-      // Should call onServiceSelect even though it's the same service (to trigger reset)
-      expect(mockOnServiceSelect).toHaveBeenCalledWith("employee-onboarding");
     });
 
     it("should properly reset from history to start chat screen state", () => {
       const { result } = renderHook(() =>
         useChat({
-          serviceId: "employee-onboarding",
           service: mockService,
-          onServiceSelect: mockOnServiceSelect,
         }),
       );
 
       // Simulate viewing chat history (with some answers)
       act(() => {
-        result.current.viewHistory(mockChatHistory, "employee-onboarding");
+        result.current.viewHistory(mockChatHistory);
       });
 
       // Verify we're in history view state
@@ -142,7 +126,7 @@ describe("useChat Integration Tests", () => {
 
       // Click on the same service to go back to start chat screen
       act(() => {
-        result.current.handleServiceSelect("employee-onboarding");
+        result.current.startNewChat();
       });
 
       // Should be in the exact state needed for start chat screen to show
@@ -159,9 +143,7 @@ describe("useChat Integration Tests", () => {
     it("should start completely fresh after completing a chat and selecting service again", () => {
       const { result } = renderHook(() =>
         useChat({
-          serviceId: "employee-onboarding",
           service: mockService,
-          onServiceSelect: mockOnServiceSelect,
         }),
       );
 
@@ -179,7 +161,7 @@ describe("useChat Integration Tests", () => {
 
       // Now user clicks on the same service again to start fresh
       act(() => {
-        result.current.handleServiceSelect("employee-onboarding");
+        result.current.startNewChat();
       });
 
       // Should be completely reset to initial state for fresh start

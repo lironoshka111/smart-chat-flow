@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { loadChatService } from "../services/chatService";
 import { useUserStore } from "../stores/userStore";
+import { useChatStore } from "../stores/chatStore";
 import { useChat } from "./chat/hooks/useChat";
 import { ChatHeader } from "./chat/ChatHeader";
 import { ChatMessages } from "./chat/ChatMessages";
@@ -10,13 +11,9 @@ import { ChatSummaryModal } from "./chat/ChatSummaryModal";
 import { LoadingSpinner } from "./ui/LoadingSpinner";
 import { ErrorMessage } from "./ui/ErrorMessage";
 
-interface ChatProps {
-  serviceId: string;
-  onServiceSelect: (serviceId: string) => void;
-}
-
-export const Chat = ({ serviceId, onServiceSelect }: ChatProps) => {
+export const Chat = () => {
   const { logout } = useUserStore();
+  const { currentServiceId: serviceId } = useChatStore();
 
   const {
     data: service,
@@ -51,12 +48,11 @@ export const Chat = ({ serviceId, onServiceSelect }: ChatProps) => {
     startNewChat,
     handleServiceSelect,
   } = useChat({
-    serviceId,
     service,
-    onServiceSelect,
   });
 
   if (isLoading) {
+    console.log("Loading chat service...");
     return <LoadingSpinner message="Loading chat service..." />;
   }
 
@@ -75,8 +71,8 @@ export const Chat = ({ serviceId, onServiceSelect }: ChatProps) => {
     <div className="flex h-screen bg-gray-50">
       <ChatSidebar
         viewingHistory={viewingHistory}
-        onServiceSelect={handleServiceSelect}
         onViewHistory={viewHistory}
+        onServiceSelect={handleServiceSelect}
       />
 
       <div className="flex-1 flex flex-col">

@@ -5,17 +5,15 @@ import type { ChatHistory } from "../../../types/chat";
 /**
  * Manages chat history viewing and navigation
  */
-export const useChatHistory = (
-  onServiceSelect: (serviceId: string) => void,
-) => {
+export const useChatHistory = () => {
   const [viewingHistory, setViewingHistory] = useState<ChatHistory | null>(
     null,
   );
-  const { chatHistory, addChatHistory } = useChatStore();
+  const { chatHistory, addChatHistory, setCurrentServiceId } = useChatStore();
 
   const viewHistory = (history: ChatHistory, currentServiceId: string) => {
     if (history.serviceId !== currentServiceId) {
-      onServiceSelect(history.serviceId);
+      setCurrentServiceId(history.serviceId);
     }
     setViewingHistory(history);
   };

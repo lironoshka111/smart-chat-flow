@@ -6,7 +6,6 @@ import { useUserStore } from "../../../stores/userStore";
  * Handles persistence - simplified to access stores directly
  */
 export const useChatPersistence = (
-  serviceId: string,
   chatState: {
     current: number;
     answers: Record<string, string>;
@@ -19,7 +18,11 @@ export const useChatPersistence = (
   },
 ) => {
   const { user } = useUserStore();
-  const { currentChatState, setCurrentChatState } = useChatStore();
+  const {
+    currentChatState,
+    setCurrentChatState,
+    currentServiceId: serviceId,
+  } = useChatStore();
   const { current, answers, chatStarted } = chatState;
   const { setCurrent, setAnswers, setChatStarted } = setChatState;
 

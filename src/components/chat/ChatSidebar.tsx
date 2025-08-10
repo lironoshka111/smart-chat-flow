@@ -12,14 +12,14 @@ import type { ChatHistory } from "../../types/chat";
 
 interface ChatSidebarProps {
   viewingHistory: ChatHistory | null;
-  onServiceSelect: (serviceId: string) => void;
   onViewHistory: (history: ChatHistory) => void;
+  onServiceSelect: (serviceId: string) => void;
 }
 
 export const ChatSidebar = ({
   viewingHistory,
-  onServiceSelect,
   onViewHistory,
+  onServiceSelect,
 }: ChatSidebarProps) => {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -170,7 +170,11 @@ export const ChatSidebar = ({
                   {getHistoryName(history)}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1">
-                  {new Date(history.timestamp).toLocaleDateString()}{" "}
+                  {new Date(history.timestamp).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}{" "}
                   {new Date(history.timestamp).toLocaleTimeString()}
                 </p>
                 {viewingHistory?.id === history.id && (
