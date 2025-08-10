@@ -22,7 +22,7 @@ This project uses packages that require Node.js ≥ 20.19.0
    npm install
    ```
 
-3. **Generate manifest (if needed)**
+3. **Generate manifest (if needed wheb data files changing)**
 
    ```bash
    npm run generate-manifest
@@ -33,8 +33,6 @@ This project uses packages that require Node.js ≥ 20.19.0
    ```bash
    npm run dev
    ```
-
-   The application will be available at `http://localhost:5173`
 
 ### Available Scripts
 
