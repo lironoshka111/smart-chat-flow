@@ -2,7 +2,7 @@ name: Push Commits
 
 on:
   push:
-    branches: [main, master, try, develop]
+    branches: [main, master]
   pull_request:
     branches: [main, master]
 
