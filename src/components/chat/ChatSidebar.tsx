@@ -12,7 +12,7 @@ import type { ChatHistory, ChatService } from "../../types/chat";
 
 type ServiceLite = Pick<ChatService, "id" | "title" | "description">;
 
-interface ChatSidebarProps {
+export interface ChatSidebarProps {
   services: ServiceLite[];
   onServiceSelect: (serviceId: string) => void;
 }

@@ -25,7 +25,9 @@ export interface Validation {
   minLength?: number;
   maxLength?: number;
   pattern?: string; // regex source (not /.../)
+  type?: "email" | "phone"; // Add support for email and phone validation types
   errorMessage?: string;
+  requiredMessage?: string; // Add support for custom required error messages
 }
 
 export interface Action {

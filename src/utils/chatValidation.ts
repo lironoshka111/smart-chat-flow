@@ -7,24 +7,41 @@ export const validateChatInput = (msg: ChatMessage, value: string): string => {
   const { validation } = msg;
   if (!validation) return "";
 
-  if (validation.required && !value) {
-    return "This field is required.";
+  if (validation.required && !value.trim()) {
+    return validation.requiredMessage || "This field is required.";
   }
 
   if (validation.minLength && value.length < validation.minLength) {
     return (
-      validation.errorMessage || `Minimum ${validation.minLength} characters.`
+      validation.errorMessage ||
+      `Must be at least ${validation.minLength} characters long.`
     );
   }
 
   if (validation.maxLength && value.length > validation.maxLength) {
     return (
-      validation.errorMessage || `Maximum ${validation.maxLength} characters.`
+      validation.errorMessage ||
+      `Must be no more than ${validation.maxLength} characters long.`
     );
   }
 
+  if (validation.type === "email" && value) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      return validation.errorMessage || "Please enter a valid email address.";
+    }
+  }
+
+  if (validation.type === "phone" && value) {
+    const cleanPhone = value.replace(/[\s\-\(\)\.]/g, "");
+    const phoneRegex = /^[\+]?[1-9][\d]{9}$/; // Exactly 10 digits for US phone
+    if (!phoneRegex.test(cleanPhone)) {
+      return validation.errorMessage || "Please enter a valid phone number.";
+    }
+  }
+
   if (validation.pattern && !new RegExp(validation.pattern).test(value)) {
-    return validation.errorMessage || "Invalid format.";
+    return validation.errorMessage || "Please enter a valid value.";
   }
 
   return "";
@@ -37,9 +54,24 @@ export const getNextMessageIndex = (
   messages: ChatMessage[],
   currentIndex: number,
 ): number => {
-  let next = currentIndex + 1;
-  while (next < messages.length && messages[next]?.continue) {
-    next++;
+  // Handle edge cases
+  if (messages.length === 0) {
+    return currentIndex;
   }
-  return next;
+
+  if (currentIndex >= messages.length) {
+    return currentIndex;
+  }
+
+  if (currentIndex < 0) {
+    return currentIndex;
+  }
+
+  // If this is the last message, return current index
+  if (currentIndex === messages.length - 1) {
+    return currentIndex;
+  }
+
+  // Simply return the next index
+  return currentIndex + 1;
 };

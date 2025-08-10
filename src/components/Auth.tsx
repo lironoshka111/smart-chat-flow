@@ -4,13 +4,13 @@ import { useUserStore } from "../stores/userStore";
 import { useLocalStorageState, useUpdateEffect } from "ahooks";
 import bcrypt from "bcryptjs";
 
-interface AuthForm {
+export interface AuthForm {
   fullName: string;
   email: string;
   password: string;
 }
 
-type StoredUser = {
+export type StoredUser = {
   fullName: string;
   email: string;
   passwordHash: string; // bcrypt hash (NO plaintext password)
@@ -118,7 +118,7 @@ export const Auth = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form noValidate onSubmit={handleSubmit} className="space-y-6">
           {mode === "join" && (
             <div>
               <label
@@ -135,7 +135,6 @@ export const Auth = () => {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter your full name"
                 autoComplete="name"
-                required
               />
             </div>
           )}
@@ -156,7 +155,6 @@ export const Auth = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter your email"
               autoComplete="email"
-              required
             />
           </div>
 
@@ -178,7 +176,6 @@ export const Auth = () => {
               autoComplete={
                 mode === "login" ? "current-password" : "new-password"
               }
-              required
             />
           </div>
 
@@ -208,11 +205,6 @@ export const Auth = () => {
               : "Already have an account? Sign In"}
           </button>
         </div>
-
-        <p className="mt-4 text-xs text-gray-400 text-center">
-          Demo only: password is hashed with bcryptjs and stored as a hash in
-          localStorage.
-        </p>
       </div>
     </div>
   );

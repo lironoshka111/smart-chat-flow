@@ -8,7 +8,7 @@ import {
 } from "@headlessui/react";
 import { Fragment } from "react";
 
-interface ChatInputProps {
+export interface ChatInputProps {
   message: ChatMessage;
   value: string;
   error: string;

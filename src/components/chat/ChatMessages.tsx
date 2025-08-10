@@ -3,7 +3,7 @@ import { ChatMessageBubble } from "./ChatMessage";
 import type { ChatMessage, ChatService, ChatHistory } from "../../types/chat";
 import { useScroll } from "../hooks/useScroll";
 
-interface ChatMessagesProps {
+export interface ChatMessagesProps {
   answers: Record<string, string>;
   viewingHistory: ChatHistory | null;
   chatStarted: boolean;

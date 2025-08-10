@@ -7,7 +7,7 @@ import {
 import type { ChatMessage } from "../../types/chat";
 import { Fragment } from "react";
 
-interface ChatSummaryModalProps {
+export interface ChatSummaryModalProps {
   open: boolean;
   onClose: () => void;
   messages: ChatMessage[];
