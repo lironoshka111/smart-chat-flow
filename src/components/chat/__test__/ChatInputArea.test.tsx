@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ChatInputArea } from "../ChatInputArea";
-import type { ChatMessage, ChatHistory } from "../../../types/chat";
+import type { ChatMessage, ChatHistory, ChatAction } from "../../../types/chat";
 import type { ChatActionsProps } from "../ChatActions";
 
 // Mock the child components
@@ -37,7 +37,7 @@ vi.mock("../ChatInput", () => ({
 vi.mock("../ChatActions", () => ({
   ChatActions: ({ message, onAction }: ChatActionsProps) => (
     <div data-testid="chat-actions">
-      {message?.actions?.map((action: any) => (
+      {message?.actions?.map((action: ChatAction) => (
         <button
           key={action.label}
           data-testid={`action-${action.label}`}

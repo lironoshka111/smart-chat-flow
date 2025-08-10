@@ -36,7 +36,7 @@ export const Auth = () => {
     serializer: JSON.stringify,
     deserializer: (value) => {
       try {
-        const parsed = JSON.parse(value) as Record<string, any>;
+        const parsed = JSON.parse(value) as Record<string, StoredUser>;
         return (parsed || {}) as Record<string, StoredUser>;
       } catch {
         return {};

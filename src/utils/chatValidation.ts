@@ -33,8 +33,8 @@ export const validateChatInput = (msg: ChatMessage, value: string): string => {
   }
 
   if (validation.type === "phone" && value) {
-    const cleanPhone = value.replace(/[\s\-\(\)\.]/g, "");
-    const phoneRegex = /^[\+]?[1-9][\d]{9}$/; // Exactly 10 digits for US phone
+    const cleanPhone = value.replace(/[\s\-().]/g, "");
+    const phoneRegex = /^\+?[1-9]\d{9}$/;
     if (!phoneRegex.test(cleanPhone)) {
       return validation.errorMessage || "Please enter a valid phone number.";
     }
