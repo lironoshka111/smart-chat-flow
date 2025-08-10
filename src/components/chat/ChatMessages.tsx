@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { ChatMessageBubble } from "./ChatMessage";
 import type { ChatMessage, ChatService, ChatHistory } from "../../types/chat";
-import { useScroll } from "./hooks/useScroll";
+import { useScroll } from "../hooks/useScroll";
 
 interface ChatMessagesProps {
   answers: Record<string, string>;

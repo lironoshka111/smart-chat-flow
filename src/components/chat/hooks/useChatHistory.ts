@@ -1,20 +1,25 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { useChatStore } from "../../../stores/chatStore";
+import { useUserStore } from "../../../stores/userStore";
 import type { ChatHistory } from "../../../types/chat";
+import { useChatUIStore } from "../../../stores/chatUIStore";
 
-/**
- * Manages chat history viewing and navigation
- */
 export const useChatHistory = () => {
-  const [viewingHistory, setViewingHistory] = useState<ChatHistory | null>(
-    null,
-  );
-  const { chatHistory, addChatHistory, setCurrentServiceId } = useChatStore();
+  const email = useUserStore((s) => s.user?.email ?? null);
+  const viewingHistory = useChatUIStore((s) => s.viewingHistory);
+  const setViewingHistory = useChatUIStore((s) => s.setViewingHistory);
 
-  const viewHistory = (history: ChatHistory, currentServiceId: string) => {
-    if (history.serviceId !== currentServiceId) {
-      setCurrentServiceId(history.serviceId);
-    }
+  const getHistoryForUser = useChatStore((s) => s.getHistoryForUser);
+  const addHistoryForUser = useChatStore((s) => s.addHistoryForUser);
+  const setCurrentServiceId = useChatStore((s) => s.setCurrentServiceId);
+
+  const chatHistory = useMemo<ChatHistory[]>(
+    () => (email ? getHistoryForUser(email) : []),
+    [email, getHistoryForUser, viewingHistory],
+  );
+
+  const viewHistory = (history: ChatHistory) => {
+    setCurrentServiceId(history.serviceId);
     setViewingHistory(history);
   };
 
@@ -26,10 +31,10 @@ export const useChatHistory = () => {
     serviceDescription: string,
     answers: Record<string, string>,
   ) => {
-    const firstInputMessage = Object.keys(answers)[0];
-    const firstInput = firstInputMessage
-      ? answers[firstInputMessage]
-      : undefined;
+    if (!email) return;
+
+    const firstKey = Object.keys(answers)[0];
+    const firstInput = firstKey ? answers[firstKey] : undefined;
 
     const newHistory: ChatHistory = {
       id: Date.now().toString(),
@@ -41,7 +46,8 @@ export const useChatHistory = () => {
       firstInput,
     };
 
-    addChatHistory(newHistory);
+    addHistoryForUser(email, newHistory);
+    setViewingHistory(newHistory);
   };
 
   return {

@@ -1,6 +1,11 @@
 import type { ChatMessage } from "../../types/chat";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import { Listbox } from "@headlessui/react";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from "@headlessui/react";
 import { Fragment } from "react";
 
 interface ChatInputProps {
@@ -40,12 +45,12 @@ export const ChatInput = ({
         {message.inputType === "select" ? (
           <div className="relative">
             <Listbox value={value} onChange={onChange}>
-              <Listbox.Button className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors">
+              <ListboxButton className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-400 transition-colors">
                 {value || "Select an option..."}
-              </Listbox.Button>
-              <Listbox.Options className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto focus:outline-none">
+              </ListboxButton>
+              <ListboxOptions className="absolute z-50 bottom-full mb-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto focus:outline-none">
                 {message.options?.map((opt) => (
-                  <Listbox.Option key={opt} value={opt} as={Fragment}>
+                  <ListboxOption key={opt} value={opt} as={Fragment}>
                     {({ active, selected }) => (
                       <li
                         className={`cursor-pointer select-none px-4 py-2 text-sm ${
@@ -55,9 +60,9 @@ export const ChatInput = ({
                         {opt}
                       </li>
                     )}
-                  </Listbox.Option>
+                  </ListboxOption>
                 ))}
-              </Listbox.Options>
+              </ListboxOptions>
             </Listbox>
           </div>
         ) : message.inputType === "date" ? (

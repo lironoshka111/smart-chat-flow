@@ -1,80 +1,82 @@
+// src/stores/chatStore.ts
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { ChatHistory } from "../types/chat";
-
-export interface CurrentChatState {
-  serviceId: string;
-  current: number;
-  answers: Record<string, string>;
-  chatStarted: boolean;
-  timestamp: string;
-}
+import type { ChatHistory, CurrentChatState } from "../types/chat";
 
 interface ChatStore {
-  // Service management
-  currentServiceId: string;
-  setCurrentServiceId: (serviceId: string) => void;
-
-  // Chat history management
-  chatHistory: ChatHistory[];
-  setChatHistory: (history: ChatHistory[]) => void;
-  addChatHistory: (history: ChatHistory) => void;
-  clearChatHistory: () => void;
-
-  // Current chat state management
+  // --- NON-PERSISTED ---
+  currentServiceId: string | null;
   currentChatState: CurrentChatState | null;
+  setCurrentServiceId: (serviceId: string | null) => void;
   setCurrentChatState: (state: CurrentChatState | null) => void;
 
-  // Utility methods
+  // --- PERSISTED (BY USER EMAIL) ---
+  historyByUser: Record<string, ChatHistory[]>;
+
+  getHistoryForUser: (email: string) => ChatHistory[];
+  addHistoryForUser: (email: string, history: ChatHistory) => void;
+  clearHistoryForUser: (email: string) => void;
+
+  // --- UTIL ---
   resetAllChatData: () => void;
 }
 
 export const useChatStore = create<ChatStore>()(
   persist(
-    (set) => ({
-      // Service management
-      currentServiceId: "employee-onboarding",
-      setCurrentServiceId: (serviceId: string) =>
-        set({ currentServiceId: serviceId }),
+    (set, get) => ({
+      // --- non-persisted ---
+      currentServiceId: null,
+      currentChatState: null,
 
-      // Chat history management
-      chatHistory: [],
-      setChatHistory: (history: ChatHistory[]) => set({ chatHistory: history }),
+      setCurrentServiceId: (serviceId) => set({ currentServiceId: serviceId }),
+      setCurrentChatState: (state) => set({ currentChatState: state }),
 
-      addChatHistory: (history: ChatHistory) =>
+      // --- persisted ---
+      historyByUser: {},
+
+      getHistoryForUser: (email) => get().historyByUser[email] || [],
+      addHistoryForUser: (email, history) =>
         set((state) => ({
-          chatHistory: [history, ...state.chatHistory],
+          historyByUser: {
+            ...state.historyByUser,
+            [email]: [history, ...(state.historyByUser[email] || [])],
+          },
+        })),
+      clearHistoryForUser: (email) =>
+        set((state) => ({
+          historyByUser: {
+            ...state.historyByUser,
+            [email]: [],
+          },
         })),
 
-      clearChatHistory: () => set({ chatHistory: [] }),
-
-      // Current chat state management
-      currentChatState: null,
-      setCurrentChatState: (state: CurrentChatState | null) =>
-        set({ currentChatState: state }),
-
-      // Utility methods
+      // --- utilities ---
       resetAllChatData: () =>
         set({
-          chatHistory: [],
+          currentServiceId: null,
           currentChatState: null,
-          currentServiceId: "employee-onboarding",
+          historyByUser: {},
         }),
     }),
     {
       name: "smart-chat-store",
       partialize: (state) => ({
-        currentServiceId: state.currentServiceId,
-        chatHistory: state.chatHistory,
-        currentChatState: state.currentChatState,
+        historyByUser: state.historyByUser,
       }),
       onRehydrateStorage: () => (state) => {
-        // Convert timestamp strings back to Date objects when loading from storage
-        if (state?.chatHistory) {
-          state.chatHistory = state.chatHistory.map((history) => ({
-            ...history,
-            timestamp: new Date(history.timestamp),
-          }));
+        // Rehydrate timestamps
+        if (state?.historyByUser) {
+          for (const email in state.historyByUser) {
+            state.historyByUser[email] = state.historyByUser[email].map(
+              (h) => ({
+                ...h,
+                timestamp:
+                  typeof h.timestamp === "string"
+                    ? new Date(h.timestamp)
+                    : h.timestamp,
+              }),
+            );
+          }
         }
       },
     },

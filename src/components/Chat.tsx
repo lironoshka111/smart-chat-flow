@@ -1,8 +1,11 @@
+import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { loadChatService } from "../services/chatService";
-import { useUserStore } from "../stores/userStore";
+import { listChatServices } from "../services/chatService";
 import { useChatStore } from "../stores/chatStore";
-import { useChat } from "./chat/hooks/useChat";
+import { useChatFlow } from "./chat/hooks/useChatFlow";
+import { useChatHistory } from "./chat/hooks/useChatHistory";
+import { chatActions } from "../stores/chatUIStore";
+
 import { ChatHeader } from "./chat/ChatHeader";
 import { ChatMessages } from "./chat/ChatMessages";
 import { ChatInputArea } from "./chat/ChatInputArea";
@@ -10,112 +13,150 @@ import { ChatSidebar } from "./chat/ChatSidebar";
 import { ChatSummaryModal } from "./chat/ChatSummaryModal";
 import { LoadingSpinner } from "./ui/LoadingSpinner";
 import { ErrorMessage } from "./ui/ErrorMessage";
+import type { ChatMessage, ServiceLite } from "../types/chat";
 
 export const Chat = () => {
-  const { currentServiceId: serviceId } = useChatStore();
-
+  // 1) Load services metadata
   const {
-    data: service,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["chat-service", serviceId],
-    queryFn: () => loadChatService(serviceId),
+    data: services,
+    isLoading: listLoading,
+    isError: listError,
+    error: listErr,
+  } = useQuery<ServiceLite[]>({
+    queryKey: ["chat-services-list"],
+    queryFn: listChatServices,
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
+  // Select current service id; set default when list arrives
+  const currentServiceId = useChatStore((s) => s.currentServiceId);
+  const setCurrentServiceId = useChatStore((s) => s.setCurrentServiceId);
+
+  useEffect(() => {
+    if (!currentServiceId && services?.length) {
+      setCurrentServiceId(services[0].id);
+    }
+  }, [currentServiceId, services, setCurrentServiceId]);
+
+  // 2) Chat flow: service load + actions
   const {
+    service,
+    serviceLoading,
+    serviceError,
+    startChat,
+    startEditing,
+    cancelEdit,
+    handleSubmit,
+    handleAction,
+
     answers,
     current,
     input,
+    showSummary,
     inputError,
     chatStarted,
-    showSummary,
     chatCancelled,
     editingMessageId,
+  } = useChatFlow();
 
-    viewingHistory,
-    startChat,
-    handleInputChange,
-    handleSubmit,
-    handleAction,
-    handleCloseSummary,
-    startEditing,
-    cancelEdit,
-    viewHistory,
-    startNewChat,
-    handleServiceSelect,
-  } = useChat({
-    service,
-  });
+  // 3) History
+  const { viewingHistory, exitHistoryView, saveToHistory } = useChatHistory();
 
-  if (isLoading) {
-    console.log("Loading chat service...");
-    return <LoadingSpinner message="Loading chat service..." />;
+  const currentMsg = useMemo(
+    () => (!viewingHistory && service ? service.messages[current] : null),
+    [viewingHistory, service, current],
+  );
+
+  // Handlers (stable: call chatActions directly)
+  const handleInputChange = chatActions.setInput;
+
+  const handleCloseSummary = () => {
+    chatActions.setShowSummary(false);
+    if (!viewingHistory && service) {
+      saveToHistory(service.id, service.title, service.description, answers);
+    }
+  };
+
+  const startNewChat = () => {
+    exitHistoryView();
+    chatActions.reset();
+  };
+
+  const handleServiceSelect = (serviceId: string) => {
+    setCurrentServiceId(serviceId);
+    startNewChat();
+  };
+
+  if (listLoading) {
+    return <LoadingSpinner message="Loading services..." />;
   }
-
-  if (error || !service) {
+  if (listError || !services) {
     return (
       <ErrorMessage
-        title="Failed to load chat service"
-        message={error?.message}
+        title="Failed to load services"
+        message={(listErr as Error)?.message}
       />
     );
   }
 
-  const currentMsg = viewingHistory ? null : service.messages[current];
+  if (serviceError || (!serviceLoading && !service)) {
+    return (
+      <ErrorMessage
+        title="Failed to load chat"
+        message="Please try another service."
+      />
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <ChatSidebar
-        viewingHistory={viewingHistory}
-        onViewHistory={viewHistory}
-        onServiceSelect={handleServiceSelect}
-      />
+      <ChatSidebar services={services} onServiceSelect={handleServiceSelect} />
 
-      <div className="flex-1 flex flex-col">
-        <ChatHeader
-          viewingHistory={viewingHistory}
-          service={service}
-          chatStarted={chatStarted}
-          showSummary={showSummary}
-          chatCancelled={chatCancelled}
-          onStartNewChat={startNewChat}
-        />
+      {serviceLoading ? (
+        <div />
+      ) : (
+        <div className="flex-1 flex flex-col">
+          <ChatHeader
+            service={service ?? null}
+            chatStarted={chatStarted}
+            chatCancelled={chatCancelled}
+            onStartNewChat={startNewChat}
+          />
 
-        <ChatMessages
-          answers={answers}
-          viewingHistory={viewingHistory}
-          chatStarted={chatStarted}
-          current={current}
-          service={service}
-          onStartChat={startChat}
-          onStartEdit={startEditing}
-          canEdit={!viewingHistory}
-        />
+          <ChatMessages
+            answers={answers}
+            viewingHistory={viewingHistory}
+            chatStarted={chatStarted}
+            current={current}
+            service={service ?? null}
+            onStartChat={startChat}
+            onStartEdit={startEditing}
+            canEdit={!viewingHistory}
+          />
 
-        <ChatInputArea
-          viewingHistory={viewingHistory}
-          chatStarted={chatStarted}
-          currentMsg={currentMsg}
-          answers={answers}
-          chatCancelled={chatCancelled}
-          input={input}
-          inputError={inputError}
-          editingMessageId={editingMessageId}
-          onInputChange={handleInputChange}
-          onInputSubmit={() => handleSubmit()}
-          onAction={(label) => handleAction(label)}
-          onCancelEdit={cancelEdit}
-          onStartNewChat={startNewChat}
-        />
-      </div>
+          <ChatInputArea
+            viewingHistory={viewingHistory}
+            chatStarted={chatStarted}
+            currentMsg={currentMsg as ChatMessage | null}
+            answers={answers}
+            chatCancelled={chatCancelled}
+            input={input}
+            inputError={inputError}
+            editingMessageId={editingMessageId}
+            onInputChange={handleInputChange}
+            onInputSubmit={handleSubmit}
+            onAction={handleAction}
+            onCancelEdit={cancelEdit}
+            onStartNewChat={startNewChat}
+          />
+        </div>
+      )}
 
       <ChatSummaryModal
         open={showSummary}
-        onClose={() => handleCloseSummary()}
-        messages={service.messages}
+        onClose={handleCloseSummary}
+        messages={(service?.messages || []) as ChatMessage[]}
         answers={viewingHistory ? viewingHistory.answers : answers}
       />
     </div>

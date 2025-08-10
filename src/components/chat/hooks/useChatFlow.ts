@@ -1,150 +1,151 @@
-import { useUpdateEffect } from "ahooks";
-import type {
-  ChatService,
-  ChatMessage,
-  ChatHistory,
-} from "../../../types/chat";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { loadChatService } from "../../../services/chatService";
+import { useChatStore } from "../../../stores/chatStore";
+import { useChatUIStore, chatActions } from "../../../stores/chatUIStore";
 import {
   validateChatInput,
   getNextMessageIndex,
 } from "../../../utils/chatValidation";
+import type { ChatMessage } from "../../../types/chat";
 
-/**
- * Manages chat flow - much simpler with state object
- */
-export const useChatFlow = (
-  service: ChatService | null,
-  chatState: {
-    current: number;
-    input: string;
-    editingMessageId: string | null;
-    chatStarted: boolean;
-    viewingHistory: ChatHistory | null;
-  },
-  actions: {
-    setCurrent: (current: number) => void;
-    setAnswers: (
-      fn: (prev: Record<string, string>) => Record<string, string>,
-    ) => void;
-    setInput: (input: string) => void;
-    setInputError: (error: string) => void;
-    setChatStarted: (started: boolean) => void;
-    setShowSummary: (show: boolean) => void;
-    setChatCancelled: (cancelled: boolean) => void;
-    setEditingMessageId: (id: string | null) => void;
-  },
-) => {
-  const { current, input, editingMessageId, chatStarted, viewingHistory } =
-    chatState;
+export function useChatFlow() {
+  const currentServiceId = useChatStore((s) => s.currentServiceId);
+
   const {
-    setCurrent,
-    setAnswers,
-    setInput,
-    setInputError,
-    setChatStarted,
-    setShowSummary,
-    setChatCancelled,
-    setEditingMessageId,
-  } = actions;
+    data: service,
+    isLoading: serviceLoading,
+    isError: serviceError,
+    error,
+  } = useQuery({
+    queryKey: ["chat-service", currentServiceId],
+    queryFn: () => loadChatService(currentServiceId as string),
+    enabled: Boolean(currentServiceId),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  });
 
-  // Auto-advance continue messages
-  useUpdateEffect(() => {
-    if (!chatStarted || viewingHistory || !service) return;
+  const current = useChatUIStore((s) => s.current);
+  const input = useChatUIStore((s) => s.input);
+  const inputError = useChatUIStore((s) => s.inputError);
+  const chatStarted = useChatUIStore((s) => s.chatStarted);
+  const showSummary = useChatUIStore((s) => s.showSummary);
+  const chatCancelled = useChatUIStore((s) => s.chatCancelled);
+  const editingMessageId = useChatUIStore((s) => s.editingMessageId);
+  const viewingHistoryId = useChatUIStore((s) => s.viewingHistory?.id);
+  const answers = useChatUIStore((s) => s.answers);
 
-    const currentMsg = service.messages[current];
-    if (!currentMsg?.continue) return;
+  // Auto-advance when a message has `continue: true`
+  useEffect(() => {
+    if (!chatStarted || viewingHistoryId || !service) return;
+    const msg = service.messages[current];
+    if (!msg?.continue) return;
 
-    const timer = setTimeout(() => {
-      setCurrent(getNextMessageIndex(service.messages, current));
+    const t = setTimeout(() => {
+      chatActions.setCurrent(getNextMessageIndex(service.messages, current));
     }, 1000);
+    return () => clearTimeout(t);
+  }, [chatStarted, viewingHistoryId, current, service]);
 
-    return () => clearTimeout(timer);
-  }, [chatStarted, viewingHistory, current, service]);
-
+  // Actions (stable because they call `chatActions` directly)
   const startChat = () => {
-    setChatStarted(true);
-    setCurrent(1); // Start with first message after welcome
+    chatActions.setStarted(true);
+    chatActions.setCurrent(1);
+  };
+
+  const startEditing = (messageId: string, currentValue: string) => {
+    chatActions.setEditing(messageId);
+    chatActions.setInput(currentValue);
+  };
+
+  const cancelEdit = () => {
+    chatActions.setEditing(null);
+    chatActions.setInput("");
   };
 
   const handleSubmit = () => {
     if (!service) return;
 
+    // Edit mode
     if (editingMessageId) {
       if (input.trim()) {
         const editIdx = service.messages.findIndex(
           (m: ChatMessage) => m.id === editingMessageId,
         );
-        setAnswers((prev) => ({ ...prev, [editingMessageId]: input }));
-        setCurrent(editIdx + 1);
-        setEditingMessageId(null);
-        setInput("");
-        setChatStarted(true);
+        chatActions.setAnswers((prev) => ({
+          ...prev,
+          [editingMessageId]: input,
+        }));
+        chatActions.setCurrent(editIdx + 1);
+        chatActions.setEditing(null);
+        chatActions.setInput("");
+        chatActions.setStarted(true);
       }
       return;
     }
 
-    const currentMsg = service.messages[current];
-    if (!currentMsg || currentMsg.type !== "input") return;
+    const msg = service.messages[current];
+    if (!msg || msg.type !== "input") return;
 
-    const error = validateChatInput(currentMsg, input);
-    if (error) {
-      setInputError(error);
+    const err = validateChatInput(msg, input);
+    if (err) {
+      chatActions.setError(err);
       return;
     }
 
-    setAnswers((prev) => ({ ...prev, [currentMsg.id]: input }));
-    setInput("");
-    setInputError("");
+    chatActions.setAnswers((prev) => ({ ...prev, [msg.id]: input }));
+    chatActions.setInput("");
+    chatActions.setError("");
 
-    const nextIndex = getNextMessageIndex(service.messages, current);
-    setCurrent(nextIndex);
+    chatActions.setCurrent(getNextMessageIndex(service.messages, current));
   };
 
   const handleAction = (label: string) => {
     if (!service) return;
 
-    const currentMsg = service.messages[current];
-    if (!currentMsg || currentMsg.type !== "action") return;
+    const msg = service.messages[current];
+    if (!msg || msg.type !== "action") return;
 
-    // Find the action that was selected
-    const selectedAction = currentMsg.actions?.find(
-      (action) => action.label === label,
-    );
-
-    // If it's a deny action, cancel the chat
-    if (selectedAction?.type === "deny") {
-      setChatCancelled(true);
-      setInput("");
-      setInputError("");
+    const selected = msg.actions?.find((a) => a.label === label);
+    if (selected?.type === "deny") {
+      chatActions.setCancelled(true);
+      chatActions.setInput("");
+      chatActions.setError("");
       return;
     }
 
-    // For approve actions, continue with normal flow
-    setAnswers((prev) => ({ ...prev, [currentMsg.id]: label }));
+    chatActions.setAnswers((prev) => ({ ...prev, [msg.id]: label }));
     const nextIndex = getNextMessageIndex(service.messages, current);
-    setCurrent(nextIndex);
+    chatActions.setCurrent(nextIndex);
 
-    // Check if we've reached the end
     if (nextIndex >= service.messages.length) {
-      setShowSummary(true);
+      chatActions.setShowSummary(true);
     }
   };
 
-  const startEditing = (messageId: string, currentValue: string) => {
-    setEditingMessageId(messageId);
-    setInput(currentValue);
-  };
-
-  const cancelEdit = () => {
-    setEditingMessageId(null);
-    setInput("");
-  };
-
   return {
+    // service
+    service,
+    serviceLoading,
+    serviceError,
+    serviceErrorObject: error as Error | undefined,
+
+    // readonly slices (for convenience; use selectors in components ideally)
+    current,
+    input,
+    inputError,
+    chatStarted,
+    showSummary,
+    chatCancelled,
+    editingMessageId,
+    viewingHistoryId,
+    answers,
+
+    // actions
     startChat,
-    handleSubmit,
-    handleAction,
     startEditing,
     cancelEdit,
+    handleSubmit,
+    handleAction,
   };
-};
+}
