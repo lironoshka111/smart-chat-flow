@@ -22,7 +22,7 @@ This project uses packages that require Node.js ≥ 20.19.0
    npm install
    ```
 
-3. **Generate manifest (if needed wheb data files changing)**
+3. **Generate manifest (if needed when data files changing)**
 
    ```bash
    npm run generate-manifest
