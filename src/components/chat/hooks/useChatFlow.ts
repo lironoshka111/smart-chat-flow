@@ -32,12 +32,11 @@ export function useChatFlow() {
   const showSummary = useChatUIStore((s) => s.showSummary);
   const chatCancelled = useChatUIStore((s) => s.chatCancelled);
   const editingMessageId = useChatUIStore((s) => s.editingMessageId);
-  const viewingHistoryId = useChatUIStore((s) => s.viewingHistory?.id);
   const answers = useChatUIStore((s) => s.answers);
 
   // Auto-advance when a message has `continue: true`
   useEffect(() => {
-    if (!chatStarted || viewingHistoryId || !service) return;
+    if (!chatStarted || !service) return;
     const msg = service.messages[current];
     if (!msg?.continue) return;
 
@@ -45,7 +44,7 @@ export function useChatFlow() {
       chatActions.setCurrent(getNextMessageIndex(service.messages, current));
     }, 1000);
     return () => clearTimeout(t);
-  }, [chatStarted, viewingHistoryId, current, service]);
+  }, [chatStarted, current, service]);
 
   // Actions (stable because they call `chatActions` directly)
   const startChat = () => {
@@ -138,7 +137,6 @@ export function useChatFlow() {
     showSummary,
     chatCancelled,
     editingMessageId,
-    viewingHistoryId,
     answers,
 
     // actions

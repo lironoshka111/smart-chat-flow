@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUserStore } from "../stores/userStore";
 import { useLocalStorageState, useUpdateEffect } from "ahooks";
 
@@ -16,6 +16,10 @@ export const Auth = () => {
   const [form, setForm] = useState<AuthForm>(initialForm);
   const [error, setError] = useState<string>("");
   const [mode, setMode] = useState<"login" | "join">("login");
+
+  useEffect(() => {
+    setError("");
+  }, [mode]);
 
   // Store user data with ahooks localStorage
   const [userData, setUserData] = useLocalStorageState<
@@ -61,6 +65,9 @@ export const Auth = () => {
     }
     setError("");
     if (mode === "join") {
+      if (userData[form.email]) {
+        return setError("User already exists.");
+      }
       const newUserData = {
         ...userData,
         [form.email]: {

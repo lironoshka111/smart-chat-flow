@@ -1,7 +1,6 @@
 // src/stores/chatUIStore.ts
 import { shallow } from "zustand/shallow";
 import { createWithEqualityFn } from "zustand/traditional";
-import type { ChatHistory } from "../types/chat";
 
 type Answers = Record<string, string>;
 
@@ -15,7 +14,6 @@ interface ChatUIState {
   showSummary: boolean;
   chatCancelled: boolean;
   editingMessageId: string | null;
-  viewingHistory: ChatHistory | null;
 
   // Actions
   reset: () => void;
@@ -27,7 +25,6 @@ interface ChatUIState {
   setCancelled: (v: boolean) => void;
   setEditing: (id: string | null) => void;
   setAnswers: (updater: (prev: Answers) => Answers) => void;
-  setViewingHistory: (history: ChatHistory | null) => void;
 }
 
 const initial: Omit<
@@ -52,7 +49,6 @@ const initial: Omit<
   showSummary: false,
   chatCancelled: false,
   editingMessageId: null,
-  viewingHistory: null,
 };
 
 export const useChatUIStore = createWithEqualityFn<ChatUIState>()(
@@ -69,7 +65,6 @@ export const useChatUIStore = createWithEqualityFn<ChatUIState>()(
     setCancelled: (v) => set({ chatCancelled: v }),
     setEditing: (id) => set({ editingMessageId: id }),
     setAnswers: (updater) => set({ answers: updater(get().answers) }),
-    setViewingHistory: (history) => set({ viewingHistory: history }),
   }),
   shallow,
 );

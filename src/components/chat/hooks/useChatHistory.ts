@@ -2,12 +2,11 @@ import { useMemo } from "react";
 import { useChatStore } from "../../../stores/chatStore";
 import { useUserStore } from "../../../stores/userStore";
 import type { ChatHistory } from "../../../types/chat";
-import { useChatUIStore } from "../../../stores/chatUIStore";
 
 export const useChatHistory = () => {
   const email = useUserStore((s) => s.user?.email ?? null);
-  const viewingHistory = useChatUIStore((s) => s.viewingHistory);
-  const setViewingHistory = useChatUIStore((s) => s.setViewingHistory);
+  const viewingHistory = useChatStore((s) => s.viewingHistory);
+  const setViewingHistory = useChatStore((s) => s.setViewingHistory);
 
   const getHistoryForUser = useChatStore((s) => s.getHistoryForUser);
   const addHistoryForUser = useChatStore((s) => s.addHistoryForUser);

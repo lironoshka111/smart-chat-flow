@@ -10,6 +10,9 @@ interface ChatStore {
   setCurrentServiceId: (serviceId: string | null) => void;
   setCurrentChatState: (state: CurrentChatState | null) => void;
 
+  viewingHistory: ChatHistory | null;
+  setViewingHistory: (history: ChatHistory | null) => void;
+
   // --- PERSISTED (BY USER EMAIL) ---
   historyByUser: Record<string, ChatHistory[]>;
 
@@ -27,9 +30,11 @@ export const useChatStore = create<ChatStore>()(
       // --- non-persisted ---
       currentServiceId: null,
       currentChatState: null,
+      viewingHistory: null,
 
       setCurrentServiceId: (serviceId) => set({ currentServiceId: serviceId }),
       setCurrentChatState: (state) => set({ currentChatState: state }),
+      setViewingHistory: (history) => set({ viewingHistory: history }),
 
       // --- persisted ---
       historyByUser: {},
