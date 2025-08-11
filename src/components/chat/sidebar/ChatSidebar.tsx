@@ -19,10 +19,10 @@ export interface ChatSidebarProps {
   onServiceSelect: (serviceId: string) => void;
 }
 
-export const ChatSidebar = ({
+export const ChatSidebar = memo(function ChatSidebar({
   services,
   onServiceSelect,
-}: ChatSidebarProps) => {
+}: ChatSidebarProps) {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [servicesVisible, setServicesVisible] = useState(true);
@@ -166,4 +166,4 @@ export const ChatSidebar = ({
       </div>
     </aside>
   );
-};
+});
