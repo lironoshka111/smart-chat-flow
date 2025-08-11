@@ -6,7 +6,7 @@ import { useChatFlow } from "./chat/hooks/useChatFlow";
 import { useChatHistory } from "./chat/hooks/useChatHistory";
 
 import { ChatHeader } from "./chat/ChatHeader";
-import { ChatMessages } from "./chat/ messages/ChatMessages";
+import { ChatMessages } from "./chat/messages/ChatMessages";
 import { ChatInputArea } from "./chat/input/ChatInputArea";
 import { ChatSummaryModal } from "./chat/ChatSummaryModal";
 import { LoadingSpinner } from "./ui/LoadingSpinner";
