@@ -44,10 +44,12 @@ vi.mock("bcryptjs", () => ({
 // Mock ahooks with proper mock functions
 const mockUseLocalStorageState = vi.fn(() => [{}, vi.fn()]);
 const mockUseUpdateEffect = vi.fn();
+const mockUseDebounce = vi.fn();
 
 vi.mock("ahooks", () => ({
   useLocalStorageState: mockUseLocalStorageState,
   useUpdateEffect: mockUseUpdateEffect,
+  useDebounce: mockUseDebounce,
 }));
 
 // Export mocks for use in tests

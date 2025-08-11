@@ -72,17 +72,29 @@ This project uses packages that require Node.js ≥ 20.19.0
 
 ```
 src/
-├── components/           # Reusable UI components
-│   ├── chat/            # Chat-specific components
-│   │   ├── __test__/    # Component tests
-│   │   └── hooks/       # Chat-related hooks
-│   ├── ui/              # Generic UI components
-│   └── __test__/        # Component tests
-├── services/            # API and business logic
-├── stores/              # Zustand state management
-├── types/               # TypeScript type definitions
-├── utils/               # Utility functions
-└── test/               # Test configuration
+├── components/              # Reusable UI components
+│   ├── chat/               # Chat-specific components
+│   │   ├── messages/       # Chat message display components
+│   │   ├── input/          # Chat input and actions
+│   │   │   └── __test__/   # Input component tests
+│   │   ├── sidebar/        # Chat history and service list
+│   │   │   └── __test__/   # Sidebar component tests
+│   │   └── hooks/          # Chat-related custom hooks
+│   │       └── __test__/   # Hook tests
+│   ├── ui/                 # Generic UI components
+│   ├── hooks/              # General custom hooks
+│   └── __test__/           # Component tests
+├── services/               # API and business logic
+├── stores/                 # Zustand state management
+├── types/                  # TypeScript type definitions
+├── utils/                  # Utility functions
+└── test/                   # Test configuration
+
+public/data/                # Static chat service definitions
+├── employee-onboarding.json
+├── feature-request.json
+├── system-access-request.json
+└── index.json             # Service manifest
 ```
 
 ## Overview

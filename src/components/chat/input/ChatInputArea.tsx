@@ -1,7 +1,7 @@
 import { ChatInput } from "./ChatInput";
-import { ChatActions } from "./ChatActions";
 import { PlusIcon } from "@heroicons/react/24/outline";
-import type { ChatMessage, ChatHistory } from "../../types/chat";
+import type { ChatMessage, ChatHistory } from "../../../types/chat";
+import { ChatActions } from "./ChatActions";
 
 interface ChatInputAreaProps {
   viewingHistory: ChatHistory | null;

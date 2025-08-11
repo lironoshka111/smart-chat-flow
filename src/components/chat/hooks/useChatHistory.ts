@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useChatStore } from "../../../stores/chatStore";
 import { useUserStore } from "../../../stores/userStore";
 import type { ChatHistory } from "../../../types/chat";
@@ -11,11 +10,7 @@ export const useChatHistory = () => {
   const getHistoryForUser = useChatStore((s) => s.getHistoryForUser);
   const addHistoryForUser = useChatStore((s) => s.addHistoryForUser);
   const setCurrentServiceId = useChatStore((s) => s.setCurrentServiceId);
-
-  const chatHistory = useMemo<ChatHistory[]>(
-    () => (email ? getHistoryForUser(email) : []),
-    [email, getHistoryForUser, viewingHistory],
-  );
+  const chatHistory = email ? getHistoryForUser(email) : [];
 
   const viewHistory = (history: ChatHistory) => {
     setCurrentServiceId(history.serviceId);

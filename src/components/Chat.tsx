@@ -6,13 +6,13 @@ import { useChatFlow } from "./chat/hooks/useChatFlow";
 import { useChatHistory } from "./chat/hooks/useChatHistory";
 
 import { ChatHeader } from "./chat/ChatHeader";
-import { ChatMessages } from "./chat/ChatMessages";
-import { ChatInputArea } from "./chat/ChatInputArea";
-import { ChatSidebar } from "./chat/ChatSidebar";
+import { ChatMessages } from "./chat/ messages/ChatMessages";
+import { ChatInputArea } from "./chat/input/ChatInputArea";
 import { ChatSummaryModal } from "./chat/ChatSummaryModal";
 import { LoadingSpinner } from "./ui/LoadingSpinner";
 import { ErrorMessage } from "./ui/ErrorMessage";
 import type { ChatMessage, ServiceLite } from "../types/chat";
+import { ChatSidebar } from "./chat/sidebar/ChatSidebar";
 
 export const Chat = () => {
   // 1) Load services metadata

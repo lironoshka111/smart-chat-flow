@@ -1,8 +1,8 @@
-import type { ChatMessage as ChatMessageType } from "../../types/chat";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import type { ChatMessage } from "../../../types/chat";
 
 export interface ChatMessageBubbleProps {
-  message: ChatMessageType;
+  message: ChatMessage;
   answer?: string;
   onStartEdit?: () => void;
   canEdit?: boolean;

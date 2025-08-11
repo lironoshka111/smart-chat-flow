@@ -1,7 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ChatInputArea } from "../ChatInputArea";
-import type { ChatMessage, ChatHistory, ChatAction } from "../../../types/chat";
+import type {
+  ChatMessage,
+  ChatHistory,
+  ChatAction,
+} from "../../../../types/chat";
 import type { ChatActionsProps } from "../ChatActions";
 
 // Mock the child components
