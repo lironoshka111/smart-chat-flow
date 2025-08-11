@@ -14,7 +14,7 @@ export const useChatHistory = () => {
 
   const chatHistory = useMemo<ChatHistory[]>(
     () => (email ? getHistoryForUser(email) : []),
-    [email, getHistoryForUser],
+    [email, getHistoryForUser, viewingHistory],
   );
 
   const viewHistory = (history: ChatHistory) => {
@@ -46,7 +46,7 @@ export const useChatHistory = () => {
     };
 
     addHistoryForUser(email, newHistory);
-    setViewingHistory(newHistory);
+    viewHistory(newHistory);
   };
 
   return {
