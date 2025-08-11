@@ -12,7 +12,6 @@ export const ChatHistoryListItem: React.FC<ChatHistoryListItemProps> = ({
   isViewing,
   onClick,
 }) => {
-  // Keep formatting stable and memoized
   const ts = useMemo(
     () =>
       typeof history.timestamp === "string"

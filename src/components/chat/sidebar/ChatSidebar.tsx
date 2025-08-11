@@ -1,4 +1,3 @@
-// English-only comments
 import { memo, useMemo, useState } from "react";
 import {
   MagnifyingGlassIcon,

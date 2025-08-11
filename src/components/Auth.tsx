@@ -1,4 +1,3 @@
-// src/components/Auth.tsx
 import { useEffect, useState } from "react";
 import { useUserStore } from "../stores/userStore";
 import { useLocalStorageState, useUpdateEffect } from "ahooks";

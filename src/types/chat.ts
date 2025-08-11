@@ -1,5 +1,3 @@
-// src/types/chat.ts
-
 export type ChatMessageType = "text" | "input" | "action";
 export type InputType = "text" | "select" | "date";
 export type ActionType = "approve" | "deny";
@@ -13,7 +11,7 @@ export interface ChatMessage {
   id: string;
   type: "text" | "input" | "action";
   content: string;
-  continue?: boolean; // Optional: if true, this next message should be sent immediately after this one
+  continue?: boolean;
   inputType?: "text" | "select" | "date";
   options?: string[];
   validation?: Validation;
@@ -42,11 +40,6 @@ export interface ChatService {
   readonly messages: ChatMessage[];
 }
 
-/**
- * Runtime representation you actually use in the app.
- * If your JSON stores ISO strings, keep `timestamp: Date` in app state
- * but parse on load (or define a separate persisted type below).
- */
 export interface ChatHistory {
   readonly id: string;
   readonly serviceId: string;
@@ -57,15 +50,10 @@ export interface ChatHistory {
   readonly firstInput?: string;
 }
 
-/**
- * If you persist to localStorage/JSON, this is the on-disk wire format.
- * Convert to/from ChatHistory when hydrating.
- */
 export interface PersistedChatHistory extends Omit<ChatHistory, "timestamp"> {
   readonly timestamp: string; // ISO
 }
 
-/** Optional lightweight type for lists/sidebars */
 export type ServiceLite = Pick<ChatService, "id" | "title" | "description">;
 
 export interface CurrentChatState {

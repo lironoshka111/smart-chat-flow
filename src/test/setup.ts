@@ -22,25 +22,6 @@ const localStorageMock = {
 };
 global.localStorage = localStorageMock as Storage;
 
-// Mock bcrypt with delayed promises for testing
-vi.mock("bcryptjs", () => ({
-  default: {
-    genSalt: vi.fn(
-      () =>
-        new Promise((resolve) => setTimeout(() => resolve("$2a$10$test"), 100)),
-    ),
-    hash: vi.fn(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve("$2a$10$test.hash"), 100),
-        ),
-    ),
-    compare: vi.fn(
-      () => new Promise((resolve) => setTimeout(() => resolve(true), 100)),
-    ),
-  },
-}));
-
 // Mock ahooks with proper mock functions
 const mockUseLocalStorageState = vi.fn(() => [{}, vi.fn()]);
 const mockUseUpdateEffect = vi.fn();
