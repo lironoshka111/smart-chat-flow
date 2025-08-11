@@ -11,11 +11,6 @@ interface UserStore {
   user: User | null;
   setUser: (user: User) => void;
   logout: () => void;
-
-  // User preferences
-  userPreferences: Record<string, unknown>;
-  setUserPreferences: (preferences: Record<string, unknown>) => void;
-  clearUserPreferences: () => void;
 }
 
 export const useUserStore = create<UserStore>()(
@@ -27,20 +22,12 @@ export const useUserStore = create<UserStore>()(
       logout: () =>
         set({
           user: null,
-          userPreferences: {},
         }),
-
-      // User preferences
-      userPreferences: {},
-      setUserPreferences: (preferences: Record<string, unknown>) =>
-        set({ userPreferences: preferences }),
-      clearUserPreferences: () => set({ userPreferences: {} }),
     }),
     {
       name: "smart-chat-user",
       partialize: (state) => ({
         user: state.user,
-        userPreferences: state.userPreferences,
       }),
     },
   ),

@@ -67,11 +67,6 @@ export const getNextMessageIndex = (
     return currentIndex;
   }
 
-  // If this is the last message, return current index
-  if (currentIndex === messages.length - 1) {
-    return currentIndex;
-  }
-
   // Simply return the next index
   return currentIndex + 1;
 };

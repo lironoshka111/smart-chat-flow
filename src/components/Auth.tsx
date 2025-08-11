@@ -19,7 +19,7 @@ export type StoredUser = {
 const initialForm: AuthForm = { fullName: "", email: "", password: "" };
 
 export const Auth = () => {
-  const setUser = useUserStore((s) => s.setUser); // persists only { fullName, email }
+  const setUser = useUserStore((s) => s.setUser);
   const [form, setForm] = useState<AuthForm>(initialForm);
   const [error, setError] = useState<string>("");
   const [busy, setBusy] = useState(false);
