@@ -1,4 +1,3 @@
-import type { ChatMessage } from "../../types/chat";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import {
   Listbox,
@@ -7,6 +6,7 @@ import {
   ListboxOptions,
 } from "@headlessui/react";
 import { Fragment } from "react";
+import type { ChatMessage } from "../../../types/chat";
 
 export interface ChatInputProps {
   message: ChatMessage;
