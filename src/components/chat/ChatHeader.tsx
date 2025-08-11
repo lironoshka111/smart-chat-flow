@@ -4,7 +4,7 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { useChatHistory } from "./hooks/useChatHistory";
 
 interface ChatHeaderProps {
-  service: ChatService | null;
+  service?: ChatService;
   chatStarted: boolean;
   chatCancelled: boolean;
   onStartNewChat: () => void;

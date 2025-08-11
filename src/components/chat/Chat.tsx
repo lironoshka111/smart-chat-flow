@@ -118,7 +118,7 @@ export const Chat = () => {
       ) : (
         <div className="flex-1 flex flex-col">
           <ChatHeader
-            service={service ?? null}
+            service={service}
             chatStarted={chatStarted}
             chatCancelled={chatCancelled}
             onStartNewChat={startNewChat}
@@ -129,7 +129,7 @@ export const Chat = () => {
             viewingHistory={viewingHistory}
             chatStarted={chatStarted}
             current={current}
-            service={service ?? null}
+            service={service}
             onStartChat={startChat}
             onStartEdit={startEditing}
             canEdit={!viewingHistory}
@@ -138,7 +138,7 @@ export const Chat = () => {
           <ChatInputArea
             viewingHistory={viewingHistory}
             chatStarted={chatStarted}
-            currentMsg={currentMsg as ChatMessage | null}
+            currentMsg={currentMsg as ChatMessage}
             answers={answers}
             chatCancelled={chatCancelled}
             input={input}

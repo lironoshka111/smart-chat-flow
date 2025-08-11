@@ -12,7 +12,7 @@ export interface ChatMessagesProps {
   viewingHistory: ChatHistory | null;
   chatStarted: boolean;
   current: number;
-  service: ChatService | null;
+  service?: ChatService;
   onStartChat: () => void;
   onStartEdit?: (messageId: string, currentValue: string) => void;
   canEdit?: boolean;
