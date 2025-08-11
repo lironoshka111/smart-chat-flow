@@ -39,7 +39,7 @@ export const ChatSidebar = memo(function ChatSidebar({
   };
 
   const filteredHistory = useMemo(() => {
-    const q = debouncedSearchQuery.trim().toLowerCase();
+    const q = debouncedSearchQuery?.trim().toLowerCase();
     if (!q) return chatHistory;
     return chatHistory.filter((h) =>
       getHistoryName(h).toLowerCase().includes(q),
