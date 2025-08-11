@@ -1,6 +1,6 @@
 import { useUserStore } from "./stores/userStore";
 import { Auth } from "./components/Auth";
-import { Chat } from "./components/Chat";
+import { Chat } from "./components/chat/Chat";
 
 const App = () => {
   const { user } = useUserStore();
